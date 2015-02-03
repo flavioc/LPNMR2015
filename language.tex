@@ -1,0 +1,105 @@
+Linear Meld (LM) is a logic programming language that offers a declarative and
+structured way to manage state using linear logic. A program consists of a
+database and a set of inference rules. The database is satured by applying
+inference rules to the facts in the database. Since LM uses linear logic as its
+foundation, facts are consumed when used in inference rules.
+
+Fig.~\ref{code:visit} presents a LM program that visits all the nodes of a
+graph. Given a graph $G = (E, V)$, the program starts with a database that has a
+fact \texttt{edge(a, b)} for every edge $(a, b) \in E$ and a fact
+\texttt{unvisited(a)} for every node $a \in G$. The idea of the program to
+initially visit node 1 (line 1) by applying the first rule (lines 3-5) which
+deletes fact \texttt{visit(1)} and \texttt{unvisited(1)} and derives fact
+\texttt{visited(1)} and a \texttt{visit(b)} for all edges $(1, b) \in E$ using a
+comprehension (line 5). The comprehension has two parts: \texttt{edge(A, B)}
+represents the body and \texttt{visit(B)} represents the head. Semantically, the
+comprehension is a rule of the form \texttt{edge(A, B) $\lolli$ visit(B)} that
+is inferred as many times as the database allows. In this case, all the edges of
+the node are deleted to infer a new \texttt{visit} fact.  The second rule of the
+program (lines 7-8) is inferred when a node has been visited already.  For a
+connected graph $G$, all the \texttt{unvisited} facts will be deleted and a fact
+\texttt{visited(a)} will be derived for every node $a \in G$.
+
+
+\begin{figure}[h]
+\stuffsize\begin{Verbatim}[numbers=left]
+visit(1). // start at node 1.
+
+visit(A), unvisited(A) // change from unvisited to visited.
+   -o visited(A),
+      {B | edge(A, B) | visit(B)}.
+ 
+visit(A), visited(A) // node already visited.
+   -o visited(A).
+\end{Verbatim}
+\caption{LM program to perform a visit of all nodes in a connected graph.}
+  \label{code:visit}
+\end{figure}
+
+Fig.~\ref{code:pagerank} presents a fragment of an asynchronous PageRank
+program that sums all the pagerank values of neighbor nodes. The rule deletes
+the old \texttt{pagerank} fact and then derives an aggregate. The first
+argument contains \texttt{sum} (the aggregate operator) and $V$ (the
+aggregate value). The second argument \texttt{edge(A, B), pagerank(B, V)}
+is the body of the aggregate that is iterated over to derive \texttt{edge(A, B),
+pagerank(B, V)}. The values $V_i$ of each combination of \texttt{edge}
+and \texttt{pagerank} are summed up and instantiated as $V = \sum_i V_i$ in
+\texttt{pagerank(A, damping/PAGES + (1.0 - damping) * V)} in order to compute
+the new pagerank values that is the sum of the neighborhood.
+
+\begin{figure}[h]
+\stuffsize\begin{Verbatim}[numbers=left]
+pagerank(A, OldRank)
+      -o [sum => V | B | edge(A, B), pagerank(B, V) |
+            edge(A, B), pagerank(B, V) |
+            pagerank(A, damp/P + (1.0 - damp) * V)].
+\end{Verbatim}
+\caption{Inference rule to update the pagerank of a node.}
+  \label{code:pagerank}
+\end{figure}
+
+\paragraph{Operational Semantics} Each rule in LM has a defined priority that is
+inferred from its position in the source file.  Rules at the beginning of the
+file have higher priority. We consider all the new facts that have been not
+considered yet to create a set of \emph{candidate rules}.  The set of candidate
+rules is then applied (by priority) and updated as new facts are derived.  Rules
+are inferred atomically and both comprehensions and aggregates cannot use facts
+derived for the current rule, only facts derived in the past.
+
+\paragraph{Abstract Syntax}
+
+Table~\ref{tbl:ast} shows the abstract syntax for rules in LM.
+A LM program $Prog$ consists of a set of derivation rules $\Sigma$ and a database $D$.
+Comprehensions and aggregates only appear on the head of the rule and such
+constructs only use simple facts.
+
+%\renewcommand{\arraystretch}{1.5}
+\noindent \begin{table}[!htb]
+\captionsetup[subfloat]{labelformat=empty}
+\subfloat[]{
+\scriptsize\begin{tabular}{ l l c l }
+  Program & $Prog$ & $::=$ & $\Sigma, D$ \\
+  Set Of Rules & $\Sigma$ & $::=$ & $\cdot \; | \; \Sigma, R$\\
+  Database & $D$ & $::=$ & $\Gamma, \Delta$ \\
+  Linear Database & $\Delta$ & $::=$ & $\cdot \; | \; \Delta, l(\hat{t})$ \\
+  Persistent Database & $\Gamma$ & $::=$ & $\cdot \; | \; \Gamma, \bang p(\hat{t})$ \\
+  Linear Fact & $L$ & $::=$ & $l(\hat{x})$\\
+  Persistent Fact & $P$ & $::=$ & $\bang p(\hat{x})$\\
+\end{tabular}
+} \subfloat[]{
+\scriptsize\begin{tabular}{l l c l}
+  Rule & $R$ & $::=$ & $BE \lolli HE \; | \; \forall_{x}. R$ \\
+  Body & $BE$ & $::=$ & $L \; | \; P \; | \; BE, BE \; | \; \one$\\
+  Head & $HE$ & $::=$ & $L \; | \; P \; | \; HE, HE \; | \; CE \; | \; AE \; | \; \one$\\
+  
+  Comprehension & $CE$ & $::=$ & $\comprehension{\widehat{x}}{SB}{SH}$ \\
+  Aggregate & $AE$ & $::=$ & $\aggregate{\mathtt{Op}}{y}{\widehat{x}}{SB}{SH_1}{SH_2}$ \\
+  
+  Sub-Body & $SB$ & $::=$ & $L \; | \; P \; | \; SB, SB$ \\
+  Sub-Head & $SH$ & $::=$ & $L \; | \; P \; | \; SH, SH \; | \; \one$\\
+\end{tabular}
+}
+\vspace{-20pt}
+\caption{Abstract syntax for a fragment of LM.}\label{tbl:ast}
+\end{table}
+%\renewcommand{\arraystretch}{1.0}

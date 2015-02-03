@@ -1,0 +1,67 @@
+
+\newcommand{\secondm}[0]{7pt}
+\newcommand{\thirdm}[0]{14pt}
+\newcommand{\comprehension}[3]{\{ \; #1; \; #2; \; #3 \; \}}
+\newcommand{\aggregate}[6]{[\; #1 \Rightarrow #2; \; #3; \; #4; \; #5; \; #6 \;]}
+\newcommand{\stuffsize}{\footnotesize}
+
+% sequent calculus
+\newcommand{\seqnocut}[3]{#1 ; #2 \Rightarrow #3}
+\newcommand{\defeq}{\buildrel\triangle\over =}
+\newcommand{\seqx}[3]{#1 ; #2 \seq #3}
+\newcommand{\compr}[1]{\m{def} \; #1}
+\newcommand{\itersname}[0]{def}
+\newcommand{\iters}[2]{\m{def}_{#1}^{*} \; #2}
+\newcommand{\itersz}[1]{\m{def}_{#1}^{*}}
+\newcommand{\iter}[3]{\m{def}_{#1}^{#2} \; #3}
+\newcommand{\iterz}[2]{\m{def}_{#1}^{#2} \;}
+\newcommand{\iterop}[2]{\mathtt{op} \; \widehat{#1} \; \widehat{#2}}
+\newcommand{\iterunfold}[5]{\forall_{\widehat{#3}}. (#5 \widehat{x} \otimes \iter{#1}{#2}{(\iterop{#3}{#4})})}
+\newcommand{\iterunfoldz}[2]{(\lambda_{\widehat{x}}. #1)\widehat{#2}}
+\newcommand{\fragment}{$LL^{0..+}$}
+\newcommand{\tab}[0]{\;\;\;\;}
+
+% HLD
+\newcommand{\stepz}{\m{step}_{HLD} \;}
+\newcommand{\mz}{\m{mat}_{HLD} \;}
+\newcommand{\dz}{\m{der}_{HLD} \;}
+\newcommand{\comp}[3]{\itersz{comp} #2 \; #3}
+\newcommand{\compz}[3]{\iter{comp}{#1}{[#2 \lolli #3]}}
+\newcommand{\compsz}[2]{\iters{comp}{[#1 \lolli #2]}}
+\newcommand{\compunfold}[3]{(#2 \lolli #3) \otimes \compz{#1}{#2}{#3}}
+\newcommand{\compunfoldz}[0]{\one}
+\newcommand{\aggsz}[3]{\iters{agg}{[#1 \lolli #2 ; #3; x]}}
+\newcommand{\aggz}[5]{\iter{agg}{#1}{[#2 \lolli #3 ; #4; #5]}}
+\newcommand{\aggunfold}[5]{\forall_x. ((#2 \lolli #3)x \otimes
+      \aggz{#1}{#2}{#3}{#4}{x :: #5})}
+\newcommand{\aggunfoldz}[2]{(\lambda x. #1) #2}
+\newcommand{\az}{\m{app}_{HLD} \;}
+\newcommand{\doz}{\m{run}_{HLD} \;}
+
+% LLD
+\newcommand{\stepo}{\m{step}_{LLD} \;}
+\newcommand{\mo}{\m{mat}_{LLD} \;}
+\newcommand{\contlld}{\m{cont}_{LLD}}
+\newcommand{\cont}{\contlld \;}
+\newcommand{\contclld}{\m{cont}_{LLDc}}
+\newcommand{\contc}[1]{\contclld^{#1} \;}
+\newcommand{\done}{\m{der}_{LLD} \;}
+\newcommand{\doo}{\m{run}_{LLD} \;}
+\newcommand{\matchlldc}{\m{mat}_{LLDc}}
+\newcommand{\mc}[1]{\matchlldc^{#1} \; }
+\newcommand{\fix}[1]{\m{fix}_{LLDc}^{#1} \; }
+\newcommand{\fixa}[1]{\m{fix}_{LLDa}^{#1} \; }
+\newcommand{\strans}[0]{\m{update}_{LLD} \;}
+\newcommand{\dc}[1]{\m{der}_{LLDc}^{#1} \;}
+\newcommand{\ao}{\m{app}_{LLD} \;}
+\newcommand{\matchllda}{\m{mat}_{LLDa}}
+\newcommand{\ma}[1]{\matchllda^{#1} \;}
+\newcommand{\da}[1]{\m{der}_{LLDa}^{#1} \;}
+\newcommand{\conta}[1]{\m{cont}_{LLDa}^{#1} \;}
+\newcommand{\lstack}[1]{\mathcal{#1}}
+
+% term equivalence
+\newcommand{\feq}[2]{#1 \equiv #2}
+
+%\newcommand{\outsem}[0]{\Xi'; \Delta'; \Gamma'}
+\newcommand{\outsem}[0]{\mathcal{O}}

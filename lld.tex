@@ -1,0 +1,157 @@
+The Low Level Dynamic~(LLD) semantics remove all the non-deterministic choices
+in the previous dynamics and makes them deterministic. LLD semantics are the
+operational semantics of LM and they:
+
+\begin{itemize}
+   \item Match rules by priority order;
+
+   \item Determine the set of linear facts needed to match either the body of
+   the rule or the body of comprehensions/aggregates without guessing;
+
+   \item Apply as many comprehensions as the database allows;
+
+   \item Apply as many aggregates as the database allows.
+
+\end{itemize}
+
+HLD had many different proof trees for a given triplet $\Gamma; \Delta; \Phi$
+because HLD allows choices to be made during the inference rules. For instance,
+in HLD any rule could be selected to be executed. In LLD there is only
+one proof tree for a given $\Gamma; \Delta; \Phi$ since there is no
+guessing involved. LLD semantics present a complete step by step
+mechanism that is needed to correctly evaluate a LM program. For
+instance, when LLD tries to apply a rule, it will check if there are
+enough facts in the database and backtrack until a rule can be inferred.
+
+\begin{theorem}[Proof Uniqueness]
+In LLD, there is only one possible proof for a given $\Gamma; \Delta; \Phi$.
+\end{theorem}
+\begin{proof}
+Inference rules of every judgment in LLD are disjunct, therefore only one
+inference rule can be applied at any given point in the proof.
+\end{proof}
+
+\paragraph{Continuation Stack} The core idea of LDD is the \emph{continuation
+stack}. A continuation stack contains \emph{continuation frames} that are
+created for each fact type needed from the database. For instance, the first
+rule in Fig.~\ref{code:visit} needs 3 frames: \texttt{visit},
+\texttt{visited} and \texttt{edge}. A frame allows the semantics to search
+over the facts of a given fact type in order to match bodies of rules and
+thus contains candidate facts that will be tried.  Each frame stores all
+contexts required to restart the matching process when it was created.  A
+frame has the form $(\Delta; \Delta'; \Xi; p; \Omega; \Lambda; \Upsilon;
+\Psi)$, where:
+
+\begin{enumerate}
+
+   \item[$\Delta$] multi-set of linear facts that are not of type $p$ plus all
+   the other $p$'s we have already tried, including the current $p$;
+
+   \item[$\Delta'$] all the other $p$'s we haven't tried yet. It is a multi-set
+   of linear facts;
+
+   \item[$\Xi$] multi-set of linear facts we have consumed to reach this point;
+
+   \item[$p$] current fact expression that originated this choice point;
+
+   \item[$\Omega$] ordered list of remaining terms needed to match past this
+   choice point;
+
+   \item[$\Lambda$] multi-set of linear fact expressions that we have matched to
+   reach this choice point. All the linear facts that match these terms are
+   located in $\Xi$;
+
+   \item[$\Upsilon$] multi-set of persistent fact expressions that we matched up
+   to this point;
+
+   \item[$\Psi$] current variable assignments (includes variable and value).
+
+\end{enumerate}
+
+LLD also uses a special \emph{rule continuation stack} that tries all the rules
+in order. This fullfills the semantics of LM for deriving the highest priority
+rule. In terms of inputs and outputs, LLD is equal to HLD.
+
+\paragraph{Matching} Matching starts with an empty continuation stack. The terms
+to match are deconstructed in an ordered context and continuation frames are
+pushed into the stack whenever a new fact appears in the body. In the rule
+below, $p_1, \Delta'' \prec p$ means that the database facts $p_1, \Delta''$
+fullfill the constraints of $p$\footnote{Constraints such as variable
+matchings.} and thus $\Delta''$ is pushed into the new continuation frame
+because it is the set of candidate facts to try next.
+
+\vspace{-10pt}
+{\stuffsize
+\[
+\infer[\mo p~\m{on}~q]
+{\mo \Psi ; \Gamma ; \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; f, \lstack{C};
+   \lstack{R} \rightarrow \outsem}
+{
+\begin{gathered}
+   p_1, \Delta'' \prec p \\
+   f = (\Delta_{old}; \Delta'_{old}; q; \Omega_{old}; \Xi_{old}; \Lambda;
+         \Upsilon; \Psi_{old}) \\
+   f' = (\Delta, p_1; \Delta''; p; \Omega; \Xi; q, \Lambda; \Upsilon; \Psi) \\
+   \mo \Psi ; \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; f', f, \lstack{C}; \lstack{R} \rightarrow \outsem
+\end{gathered}
+}
+\]
+}
+\vspace{-15pt}
+
+Matching finishes when there is no more terms to match.
+
+\paragraph{Continuation} If, during the matching process, the mechanism is
+unable to retrieve candidate facts for a given fact, we need to backtrack to try
+other combinations. The top frame of the continuation stack is updated to
+retrieve the next candidate fact and then restore the matching process using the
+frame's contexts.
+
+\vspace{-10pt}
+{\stuffsize
+\[
+\infer[\cont p~\m{next}]
+{\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda; \Upsilon; \Psi), \lstack{C};
+   H; \lstack{R}; \Gamma \rightarrow \outsem}
+{\mo \Psi; \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p,
+      \Omega; H; \Xi; \Lambda; \Upsilon; \Psi), \lstack{C}; \lstack{R} \rightarrow \outsem}
+\]
+}
+\vspace{-20pt}
+
+\paragraph{Derivation}
+
+Once matching completes, the terms are derived by deconstructing the head terms
+into an ordered context. Next, the terms are derived sequentially, including
+comprehensions and aggregates.
+
+\paragraph{Aggregates}
+
+Both aggregates and comprehensions use the same computation mechanism as before.
+First, we start with an empty continuation stack and then the aggregate's body
+$SB$ is matched. If matching is successful, then the first application of the
+aggregate is completed and then the aggregate head $SH_1$ is derived for this
+particular combination. At this point, the aggregate value is saved in the
+judgment.\footnote{Since the aggregate references a variable $x$, we look into
+   $\Psi$ to retrieve the value.}
+
+However, the semantics of aggregates require all the combinations of $SB$ from
+the database. For this, we reuse the continuation stack created by the first
+application. All the frames after the first continuation frame for a linear fact
+need to be removed and then the remaining frames need to be updated in order to
+delete the consumed facts from the contexts. For example, if the body is
+$\mathtt{b(X)} \otimes \mathtt{c(X)} \otimes \mathtt{b(Y)}$ and the continuation
+stack has three frames (one per fact), we cannot backtrack to the frame of
+$\mathtt{b(Y)}$ because, at that point, the matching process was assuming that
+the previous $\mathtt{c(X)}$ linear fact was still available.  Moreover, we also
+need to remove the consumed linear facts from the $\mathtt{b(X)}$ frame
+since the candidate context may contain a $\mathtt{b}$ fact that was deleted
+for $\mathtt{b(Y)}$.
+
+Afterwards, the next application of the aggregate is done by restarting the
+matching process at the top of the continuation stack. This repeated process
+eventually iterates over the database since all candidate facts are matched.
+The aggregate completes when the continuation stack is exhausted and then the
+final aggregate head $SH_2$ is derived with the computed aggregated value.
+
+

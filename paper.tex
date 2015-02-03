@@ -1,0 +1,85 @@
+% This is LLNCS.DEM the demonstration file of
+% the LaTeX macro package from Springer-Verlag
+% for Lecture Notes in Computer Science,
+% version 2.4 for LaTeX2e as of 16. April 2010
+%
+\documentclass{llncs}
+%
+\usepackage{makeidx}  % allows for indexgeneration
+\usepackage{graphicx}
+\usepackage{times}
+
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+\usepackage{caption}
+\usepackage{subfig}
+\usepackage{multirow}
+\usepackage{floatrow}
+\usepackage{proof-dashed}
+%\usepackage{amsthm}
+\usepackage{nth}
+\usepackage[numbers,sort]{natbib}
+\usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered]{hyperref}
+\input{fp-macros}
+\input{macros}
+
+%
+\begin{document}
+\newcommand{\cmu}{\ensuremath{^\dag}}
+\newcommand{\fcup}{\ensuremath{^\ddag}}
+
+\title{Proof-Theoretic Semantics For Forward-Chaining Linear Logic Programming with Comprehensions and Aggregates}
+\author{Flavio Cruz\inst{1,2}, Frank Pfenning\inst{1}}
+
+\institute{Carnegie Mellon University, Pittsburgh, PA 15213\\
+       \url{{fmfernan, fp}@cs.cmu.edu} \\
+       \and
+       CRACS \& INESC TEC, Faculty of Sciences, University Of Porto\\
+       Rua do Campo Alegre, 1021/1055, 4169-007 Porto, Portugal\\
+       \url{flavioc@dcc.fc.up.pt}}
+
+%\newtheorem{lemma}{Lemma}[section]
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{definition}{Definition}[section]
+
+\maketitle
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+\pagestyle{headings}  % switches on printing of running heads
+
+\section{Introduction}
+\input{intro}
+
+\section{The LM Language}
+\input{language}
+
+\section{The \fragment Logic}
+\input{calculus}
+
+\section{High Level Dynamic Semantics}
+\input{hld}
+
+\section{Low Level Dynamic Semantics}
+\input{lld}
+
+\section{Soundness Proof}
+%\input{soundness}
+
+\section{Related Work}
+\input{related_work}
+
+\section{Conclusions}
+\input{conclusions}
+
+\bibliographystyle{splncs03}
+\bibliography{refs}
+
+\appendix
+\section{\fragment}
+\input{appendix/fragment}
+
+\end{document}
