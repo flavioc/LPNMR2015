@@ -1,0 +1,16 @@
+\[
+\infer[\cont \bang p~\m{next}]
+{\cont [p_1, \Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon],
+   \lstack{C}; H; \lstack{R};
+   \Gamma \rightarrow \outsem}
+{\mo \Gamma; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; \Xi;
+   \Lambda; \Upsilon], \lstack{C}; \lstack{R} \rightarrow \outsem}
+\]
+
+\[
+\infer[\cont \bang p~\m{no~more}]
+{\cont [\cdot; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], \lstack{C}; H;
+   \lstack{R}; \Gamma
+   \rightarrow \outsem}
+{\cont \lstack{C}; H; \lstack{R}; \Gamma \rightarrow \outsem}
+\]

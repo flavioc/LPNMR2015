@@ -8,7 +8,11 @@ paper.pdf: paper.tex intro.tex \
 		abstract.tex \
 		conclusions.tex \
 		calculus.tex \
-		macros.tex
+		macros.tex \
+		appendix/lld.tex \
+		appendix/hld.tex \
+		appendix/fragment.tex \
+		hld/derivation.tex
 	pdflatex paper.tex
 	pdflatex paper.tex
 	bibtex paper
