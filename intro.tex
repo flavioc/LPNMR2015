@@ -3,11 +3,11 @@ Datalog~\cite{Ramakrishnan93asurvey} is a forward-chaining logic programming
 language originally for deductive databases. In Datalog, the program is composed
 of a database of facts and a set of rules. Datalog programs first populate the
 database with axioms and then saturate the database using rule inference. In
-Datalog logical facts are persistent, therefore once a fact is inferred, it
+Datalog logical facts are persistent, therefore once a fact is derived, it
 cannot be deleted. However, there has been a growing interest in integrating
 linear logic~\cite{girard-87} into bottom-up logic
 programming~\cite{Chang03ajudgmental,cruz-iclp14,Lopez:2005:MCL:1069774.1069778,simmons-lla},
-allowing for both fact assertion and fact deletion.
+allowing for both fact assertion and fact retraction.
 
 Linear logic programming greatly increases the expressiveness of traditional
 Datalog since it allows the programmer to manage state in a structured fashion.
@@ -17,38 +17,29 @@ popular among functional programmers for years~\cite{npl1977} and aggregates
 have found its way into
 Datalog~\cite{Consens93lowcomplexity,Greco:1999:DPD:627321.627989} and also
 functional programming in the form of
-\emph{folds}~\cite{Hutton:1999:TUE:968578.968579}.  In this paper, we present
-LM~\cite{cruz-iclp14}, a linear logic programming language that supports
-comprehensions and aggregates.
+\emph{folds}~\cite{Hutton:1999:TUE:968578.968579}.
 
-LM is a concurrent programming language for programming over graph data
-structures that supports both linear and persistent facts. LM is based on
-\fragment, a logic that is a fragment of intuitionistic linear logic plus a
-small extension we call \emph{iterative definitions} that were introduced to
-logically justify comprehensions and aggregates. In LM, comprehensions allow the
-programmer to iterate over combinations of facts to derive new facts, while
-aggregates iterate over facts in order to aggregate values from such
-combinations.
-
-We present a high level dynamic semantics and then a low level dynamic
-semantics of a fragment of LM.  Both semantics will be presented using
-proof-theoretic methods. The high level semantics are closely related to the
-sequent calculus of \fragment since it amounts to focusing with
+In this paper, we present LM~\cite{cruz-iclp14}, a linear logic programming
+language that supports comprehensions and aggregates and is suited for
+programming over graph data structures. LM is based on a small fragment of
+intuitionistic linear logic and both comprehensions and aggregates are encoded
+using persistent terms that allow the programmer to iterate over combinations of
+facts. We present a high level dynamic semantics and then a low level abstract
+machine using proof-theoretic methods. The high level semantics are closely
+related to the sequent calculus of since it amounts to focusing with
 forward-chaining~\cite{Andreoli92logicprogramming,laurent2004proof}, where atoms
-have a positive polarity.  The low level semantics are much closer to a real
-implementation since they remove most of non-determinism of the high level
+have a positive polarity.  The low level abstract machine is much closer to a
+real implementation since it remove most of non-determinism of the high level
 semantics and also describe in detail how the focused proof search mechanism
 works, including backtracking and resource management. We also relate both
-semantics by proving that the low level dynamic semantics is sound in relation
-to the high level dynamic semantics.
+systems by proving that the abstract machine is sound in relation to the high
+level dynamic semantics.
 
-The contributions of this paper are 2-fold: (1) a low level dynamic semantics
-for a forward-chaining linear logic programming language and the connection to its
-logic based on proof-theoretic methods and (2) a new proof-theoretic approach
-called iterative definitions to useful logic programming constructs such as
-comprehension and aggregates. The paper is organized as follows. In Section 2 we
-present a simple LM program. Next, in Section 3 we present the sequent calculus of
-\fragment, the logic used for LM. In Sections 4 and 5 we present the high
-level dynamic semantics and the low level dynamic semantics. The soundness proof
-is presented in Section 6 and then we conclude with related work and
-conclusions.
+The contributions of this paper are 2-fold: (1) a low level abstract machine for
+a forward-chaining linear logic programming language and (2) the connection to
+its logic based on proof-theoretic methods, namely, the sequent calculus.  The
+paper is organized as follows. In Section 2 we present a simple LM program.
+Next, in Section 3 we present the sequent calculus of used for LM. In Sections 4
+and 5 we present the high level dynamic semantics and the low level abstract
+machine. The soundness proof is presented in Section 6 and then we conclude with
+related work and conclusions.
