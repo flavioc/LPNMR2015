@@ -20,13 +20,13 @@ functional programming in the form of
 \emph{folds}~\cite{Hutton:1999:TUE:968578.968579}.
 
 In this paper, we present LM~\cite{cruz-iclp14}, a linear logic programming
-language that supports comprehensions and aggregates and is suited for
-programming over graph data structures. LM is based on a small fragment of
-intuitionistic linear logic and both comprehensions and aggregates are encoded
-using persistent terms that allow the programmer to iterate over combinations of
-facts. We present a high level dynamic semantics and then a low level abstract
-machine using proof-theoretic methods. The high level semantics are closely
-related to the sequent calculus of since it amounts to focusing with
+language that supports comprehensions, aggregates and rule priorities and is
+suited for programming over graph data structures. LM is based on a small
+fragment of intuitionistic linear logic and both comprehensions and aggregates
+are encoded using persistent terms that allow the programmer to iterate over
+combinations of facts. We present a high level dynamic semantics and then a low
+level abstract machine using proof-theoretic methods. The high level semantics
+are closely related to the sequent calculus of since it amounts to focusing with
 forward-chaining~\cite{Andreoli92logicprogramming,laurent2004proof}, where atoms
 have a positive polarity.  The low level abstract machine is much closer to a
 real implementation since it remove most of non-determinism of the high level
