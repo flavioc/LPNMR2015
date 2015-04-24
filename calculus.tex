@@ -1,11 +1,12 @@
-\fragment is based on a fragment of linear plus an extension we call
-\emph{iterative definitions}.  The sequent is written as $\Psi;
-\seqx{\Gamma}{\Delta}{C}$ and can be read as "assuming persistent resources
-$\Psi$ and linear resources $\Delta$ then $C$ is true".  More specifically,
-$\Psi$ is the typing context, $\Gamma$ is a multi-set of persistent resources,
-$\Delta$ is a multi-set of linear resources while $C$ is the proposition we want
-to prove.
+The fragment of linear logic used by LM is presented in
+Fig.~\ref{fig:sequent_calculus} in the form of the sequent calculus.
+The sequent is written as $\Psi; \seqx{\Gamma}{\Delta}{C}$ and
+can be read as "assuming persistent resources $\Gamma$ and linear resources
+$\Delta$ then $C$ is true". More specifically, $\Psi$ is the typing context,
+$\Gamma$ is a multi-set of persistent resources, $\Delta$ is a multi-set of
+linear resources while $C$ is the proposition we want to prove.
 
+\begin{figure}[ht]
 {\stuffsize
 \[
 \infer[\otimes R]
@@ -17,6 +18,21 @@ to prove.
 {\Psi ; \seqx{\Gamma}{\Delta, A, B}{C}}
 \]
 
+
+\[
+   \infer[\with L_1]
+   {\Psi; \seqx{\Gamma}{\Delta, A \with B}{C}}
+   {\Psi; \seqx{\Gamma}{\Delta, A}{C}}
+   \tab
+   \infer[\with L_2]
+   {\Psi; \seqx{\Gamma}{\Delta, A \with B}{C}}
+   {\Psi; \seqx{\Gamma}{\Delta, B}{C}}
+   \tab
+   \infer[\with R]
+   {\Psi; \seqx{\Gamma}{\Delta}{A \with B}}
+   {\Psi; \seqx{\Gamma}{\Delta}{A} & \Psi; \seqx{\Gamma}{\Delta}{B}}
+\]
+
 \[
 \infer[\lolli R]
 {\Psi ; \seqx{\Gamma}{\Delta}{A \lolli B}}
@@ -26,6 +42,20 @@ to prove.
 {\seqx{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
 {\Psi ; \seqx{\Gamma}{\Delta}{A} &
    \Psi ; \seqx{\Gamma}{\Delta', B}{C}}
+\]
+
+\[
+\infer[\bang R]
+{\Psi ; \seqx{\Gamma}{\cdot}{\bang A}}
+{\Psi ; \seqx{\Gamma}{\cdot}{A}}
+\tab
+\infer[\bang L]
+{\Psi ; \seqx{\Gamma}{\Delta, \bang A}{C}}
+{\Psi ; \seqx{\Gamma, A}{\Delta}{C}}
+\tab
+\infer[\m{copy}]
+{\Psi ; \seqx{\Gamma, A}{\Delta}{C}}
+{\Psi ; \seqx{\Gamma, A}{\Delta, A}{C}}
 \]
 
 \[
@@ -61,120 +91,44 @@ to prove.
 {\Psi ; \seqx{\Gamma}{\cdot}{A} & \Psi ; \seqx{\Gamma, A}{\Delta}{C}}
 \]
 }
+\label{fig:sequent_calculus}
+\caption{Fragment of linear logic used to implement LM.}
+\end{figure}
 
-Iterative definitions are used to describe comprehensions and aggregates. This
-connective is a definition that can be unfolded recursively for an arbitrary
-number of times and is inspired in the Baelde's work on least and greatest fixed
-points in linear logic~\cite{Baelde:2012:LGF:2071368.2071370}. Baelde's system
-goes beyond simple recursive definitions and allows proofs using induction and
-co-induction in linear logic.  Iterative definitions are written as
-$\iters{name}{\widehat{V}}$, where $name$ is the identifier of the definition.
+\paragraph{From the Sequent Calculus to LM}
 
-{\stuffsize
-\[
-\infer[\itersname^* R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\iters{name}{\widehat{V}}}}
-{\Psi ; \seqx{\Gamma}{\Delta}{\iter{name}{N}{\widehat{V}}}}
-\tab
-\infer[\itersname^* L]
-{\Psi ; \seqx{\Gamma}{\Delta, \iters{name}{\widehat{V}}}{C}}
-{\Psi ; \seqx{\Gamma}{\Delta, \iter{name}{N}{\widehat{V}}}{C}}
-\]
-}
-
-A definition $name$ has the following definition:
-
-{\stuffsize
-\begin{align}
-\iter{name}{0}{\widehat{V}} & \defeq \iterunfoldz{C}{V} \\
-\iter{name}{N}{\widehat{V}} & \defeq \iterunfold{name}{N-1}{x}{V}{A}
-\end{align}
-}
-
-Where $\widehat{V}$ is a list of arguments and $\mathtt{op}$ is some function
-that merges its arguments. Terms $A$ and $C$ are not allowed to have other
-iterative definitions.  Each $\iter{name}{N}{\widehat{V}}$ has left and right
-rules for the case when $N
-> 0$.
-
-{\stuffsize
-\[
-\infer[\itersname^N R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\iter{name}{N}{\widehat{V}}}}
-{\Psi ; \seqx{\Gamma}{\Delta}{\forall_{\widehat{x}}. (A \widehat{x} \otimes \iter{name}{N-1}{(\iterop{x}{V})}})}
-\tab
-\infer[\itersname^N L]
-{\Psi ; \seqx{\Gamma}{\Delta, \iter{name}{N}{\widehat{V}}}{C}}
-{\Psi ; \seqx{\Gamma}{\Delta, \forall_{\widehat{x}}. (A \widehat{x} \otimes \iter{name}{N-1}{(\iterop{x}{V})})}{C}}
-\]
-}
-
-Otherwise, if $N = 0$, then the iteration stops:
-
-{\stuffsize
-\[
-\infer[\itersname^0 R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\iter{name}{0}{\widehat{V}}}}
-{\Psi ; \seqx{\Gamma}{\Delta}{(\lambda_{\widehat{x}}. C)\widehat{V}}}
-\tab
-\infer[\itersname^0 L]
-{\Psi ; \seqx{\Gamma}{\Delta, \iter{name}{0}{\widehat{V}}}{C}}
-{\Psi ; \seqx{\Gamma}{\Delta, (\lambda_{\widehat{x}}. C)\widehat{V}}{C}}
-\]
-}
-
-Finally, we complete the linear logic system with the \emph{cut rules} and the
-\emph{identity rule}:
-
-\paragraph{Cut Reduction} To use \fragment, we prove that it is
-\emph{consistent} by defining a new sequent $\Psi; \seqnocut{\Gamma}{\Delta}{C}$
-without the cut rules and then proving that it is possible to prove everything
-without cuts.
-
-\begin{theorem}[Cut elimination]
-If $\Psi ; \seqx{\Gamma}{\Delta}{A}$ then $\Psi ; \seqnocut{\Gamma}{\Delta}{A}$.
-\end{theorem}
-\begin{proof}
-Induction on the structure of the assumption. All cases are trivial except for
-the cut rules, where we use the admissibility of cut.
-\end{proof}
-
-\begin{theorem}[Cut Admissibility]
-If $\Psi ; \seqnocut{\Gamma}{\Delta}{A}$ and $\Psi ; \seqnocut{\Gamma}{\Delta',
-   A}{C}$ then $\Psi ; \seqnocut{\Gamma}{\Delta, \Delta'}{C}$.
-\end{theorem}
-\begin{proof}
-By a nested induction, first on the structure of $A$ and on the structures of
-the first or the second assumption.
-\end{proof}
-
-\paragraph{From the \fragment sequent calculus to LM}
+\newcommand{\agg}[2]{\mathcal{R}_{#1}^{(#2)}}
 
 We translate the rule of the asynchronous PageRank~(Fig.~\ref{code:pagerank}) to
-a proposition in \fragment:\footnote{Comprehensions are a special case of
-aggregates where nothing is aggregated and nothing is derived at the end.}
+a proposition in the sequent calculus:
 
 {\stuffsize
 \begin{align}
-\forall_A. \forall_{OldRank}. \mathtt{pagerank}(A, OldRank) \lolli \itersz{agg}
-\; A \; 0
+   \forall_A. \forall_{OldRank}. \mathtt{pagerank}(A, OldRank) \lolli
+   \defsone{agg}{A, 0}
 \end{align}
 }
 
 The translation is fairly straightforward, except for the aggregate. Each
-comprehension and aggregate of a LM program must be assigned to an unique name and its
-corresponding terms. For the iterative definition $agg$, it is defined as
-following:
+comprehension\footnote{Comprehensions are a special case of aggregates without
+aggregate operators.} and aggregate of a LM program must be assigned to an
+unique name and a corresponding persistent term. For the symbol $agg$ we have
+the following persistent term:
 
 {\stuffsize
-\begin{align}
-\iterz{agg}{0} A \; S & \defeq \mathtt{pagerank}(A, damp/P + (1.0 -
-         damp) * S)\\
-\iterz{agg}{N} A \; S & \defeq \forall_V. \forall_B. ((\mathtt{edge}(A, B) \otimes
-         \mathtt{pagerank}(B, V)) \lolli \iterz{agg}{N-1} A \; (S + V)
-\end{align}
+\begin{multline}
+   \bang \forall_A. \forall_V. \defsone{agg}{A, V} \lolli (\mathtt{pagerank}(A,
+   damp/P + (1.0 - damp) \times V) \with \\ (\forall_V'. \forall_B.
+   (\mathtt{edge}(A, B) \otimes \mathtt{pagerank}(B, V')) \lolli
+   (\mathtt{edge}(A, B) \otimes \mathtt{pagerank}(B, V')) \otimes \defsone{agg}{A, V
+   + V'}))
+\end{multline}
 }
 
-Notice that the argument list of the iterative definition is being used
-to pass around terms from outside the definition, in this case, the variable
-$A$. The variable $S$ accumulates the aggregate value.
+Notice that the argument list of $\defsone{agg}{A, V}$ is being used as
+$\forall$ variables that need to be recursively passed around. Any variable used
+in the aggregate expression must be part of the argument list.  For aggregates,
+have an extra variable (in the example, $V$) that accumulates the value of the
+aggregate. As we are going to see next, by making the aggregate term persistent,
+we are allowed to use it multiple times in order to compute the value of the
+aggregate.

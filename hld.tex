@@ -1,80 +1,104 @@
 The High Level Dynamic~(HLD) semantics formalize the mechanism of matching rules
-and deriving new facts. HLD is a simple layer over \fragment that presents a
-simplified overview of the semantics of LM.  Starting from \fragment presented
-earlier, we consider $\Gamma$ and $\Delta$ the database of our program. $\Gamma$
-contains the database of persistent facts while $\Delta$ the database of linear
-facts. We assume that the rules of the program are persistent linear
-implications of the form $\bang (A \lolli B)$ that can be used several times.
-However, we do not put the rules in the $\Gamma$ context but in a separate
-context $\Phi$. In HLD, we ignore the right side of the sequent calculus and use
-\emph{chaining} and \emph{inversion} on the $\Delta$ and $\Gamma$ contexts so
-that we only have atomic facts (e.g., the database of facts). To apply rules we
-use \emph{focusing}~\cite{Andreoli92logicprogramming} on one of the derivation
-rules in $\Phi$. Note that in the focusing process we assume that all the atoms
+and deriving new facts. HLD is a simple layer over the sequent calculus that
+presents a simplified overview of the semantics of LM. We consider $\Gamma$ and
+$\Delta$ the database of our program. $\Gamma$ contains the database of
+persistent facts while $\Delta$ the database of linear facts. We assume that the
+rules of the program are persistent linear implications of the form $\bang (A
+\lolli B)$ that can be used several times. However, we do not put the rules in
+the $\Gamma$ context but in a separate context $\Phi$. The persistent terms
+associated with each comprehension and aggregate are put in the $\Pi$ dictionary
+that maps symbols to persistent terms.
+
+In HLD, we ignore the right side of the sequent calculus and use \emph{chaining}
+and \emph{inversion} on the $\Delta$ and $\Gamma$ contexts so that we only have
+atomic facts (e.g., the database of facts). To apply rules we use
+\emph{focusing}~\cite{Andreoli92logicprogramming} on one of the derivation rules
+in $\Phi$. Note that in the focusing process, we assume that all the atoms
 (facts) are positive thus the chaining proceeds in a \emph{forward chaining}
-fashion.~\footnote{Note that neither HLD or LLD model the use of variable bindings when
-matching facts from the database. The formalization of bindings tends to
-complicate the formal system and it is not necessary for a good understanding of
-the system. Instead, we assume that all facts of type $\emph{fact}(\hat{x})$ do
-not have the argument $\hat{x}$.}
+fashion.~\footnote{Note that neither HLD or the low level abstract machine
+   explicitly use of variable bindings when matching facts from the database. The
+   formalization of bindings tends to complicate the formal system and it is not
+   necessary for a good understanding of the system.}
 
 An operational step is performed by applying a single inference rule, resulting
 in a state transition represented as $\Gamma_1; \Delta_1 \rightarrow \Gamma_2;
-\Delta_2$. The entry point of HLD is the judgment $\doz \Gamma; \Delta; \Phi
-\rightarrow \Xi'; \Gamma'; \Delta'$.  $\Gamma$, $\Delta$ and $\Phi$ have the
-meaning explained before, while $\Xi'$, $\Gamma'$ and $\Delta'$ are output
-multi-sets from applying one of the rules in $\Phi$ and are usually written as
-$\outsem$. $\Xi'$ is the set of consumed linear resources, $\Gamma'$ is the set
-of derived persistent facts and $\Delta'$ is the set of derived linear facts.
-Note that for HLD semantics there is no concept of rule priority, therefore a
-rule is picked non-deterministically.
+\Delta_2$. The entry point of HLD is the judgment
+$\doz{\Gamma}{\Delta}{\Phi}{\Pi}{\Xi'}{\Gamma'}{\Delta'}$. The contexts
+$\Gamma$, $\Delta$ and $\Phi$ have the meaning explained before, while $\Xi'$,
+$\Gamma'$ and $\Delta'$ are output multi-sets from applying one of the rules in
+$\Phi$ and are usually written as $\outsem$. $\Xi'$ is the set of consumed
+linear resources, $\Gamma'$ is the set of derived persistent facts and $\Delta'$
+is the set of derived linear facts.  Note that for HLD semantics there is no
+concept of rule priority, therefore a rule is picked non-deterministically.
 
 In HLD computation proceeds as follows:
 \begin{itemize}[leftmargin=*]
+
    \item The rule is unpacked by "guessing" the correct variable assignments for
    the $\forall$ connective;
-   \item Once the linear implication of the $A \lolli B$ is reached, the $\lolli
-   L$ rule splits non-deterministically the set of matched facts $\Delta$ into
-   $\Delta_a$ and $\Delta_b$, where $\Delta_1$ is the set of linear facts used
-   for matching the rule body; Matching uses the judgment 
-   $\mz \Gamma; \Delta \rightarrow A$ for a given body $A$;
-   \item $\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \Omega \rightarrow
-   \outsem$ treats the head of the rule $\Omega$ as an ordered context and
-   unpacks and derives facts into $\Gamma_1$ and $\Delta_1$.
+
+   \item The linear implication $A \lolli B$ non-deterministically splits the
+   set of matched facts $\Delta$ into $\Delta_a$ and $\Delta_b$, where
+   $\Delta_1$ is the set of linear facts used for matching the rule body;
+   Matching uses the judgment $\mz{\Gamma}{\Delta_1}{A}$ for a given
+   body $A$;
+
+   \item $\dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{\Omega}{\outsem}$
+   treats the head of the rule $\Omega$ as an ordered context and unpacks facts
+   into $\Gamma_1$ and $\Delta_1$.
+
 \end{itemize}
 
-The HLD semantics get complicated when deriving aggregates. First, the aggregate
-is assigned an arbitrary $N$ before unfolding and is then unpacked until the
-aggregate implication is reached. Here, the $\Delta$ context is split again and
-the derivation proceeds normally. The relevant rules are shown
-below:\footnote{The aggregate shown collects all values into a list using
-   the cons $::$ operator.}
+Aggregates are computed during the derivation the head of a rule.  First, we
+look into $\Pi$ for the appropriate persistent term and then immediatelly apply
+the top linear implication ($\m{copy}$ rule in the $\Pi$ context followed by the
+$\lolli L$ rule of the sequent calculus). The aggregate term is substituted by
+either the final term (if the aggregate is complete)\footnote{The aggregate
+shown collects all values into a list using the cons $::$ operator.} or by the
+recursive case. On the recursive case, the implication is deconstructed using
+$\dzname \lolli$ where the matching judgment is used again in order to match the
+body of the aggregate and then derive the two heads of the aggregate. The
+relevant rules are presented as follows:
 
-\vspace{-20pt}
 {\stuffsize
 \[
-\infer[\dz \m{agg}^N]
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggz{N}{A}{B}{C}{\Sigma}, \Omega
-   \rightarrow \outsem}
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ;
-   \aggunfold{N-1}{A}{B}{C}{\Sigma},
-   \Omega \rightarrow \outsem}
+\infer[\dzname \m{agg}_1]
+{\dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{\defstwo{agg}{\widehat{V}}{\Sigma},
+   \Omega}{\outsem}}
+{\begin{gathered}
+   \Pi(\m{agg}) = \forall_{\widehat{v}, \Sigma'}.
+   (\defstwo{agg}{\widehat{v}}{\Sigma'} \lolli ((\lambda x. C)\Sigma' \with (\forall_{\widehat{x}, \sigma}.
+                                                (A \lolli B \otimes
+                                                 \defstwo{agg}{\widehat{v}}{\Sigma'
+                                                 + \sigma})))) \\
+   \dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{\forall_{\widehat{x},
+   \sigma}. (A \lolli B \otimes \defstwo{agg}{\widehat{v}}{\Sigma
+    + \sigma})\{\widehat{V}/\widehat{v}\}\{\Sigma/\Sigma'\}, \Omega}{\outsem}
+   \end{gathered}
+}
 \]
 
 \[
-\infer[\dz \m{agg}^0]
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggz{0}{A}{B}{C}{\Sigma}, \Omega
-   \rightarrow \outsem}
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggunfoldz{C}{\Sigma}, \Omega
-   \rightarrow \outsem}
+\infer[\dzname \m{agg}_2]
+{\dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{\defstwo{agg}{\widehat{V}}{\Sigma},
+   \Omega}{\outsem}}
+{\begin{gathered}
+   \Pi(\m{agg}) = \forall_{\widehat{v}, \Sigma'}.
+   (\defstwo{agg}{\widehat{v}}{\Sigma'} \lolli ((\lambda x. C)\Sigma' \with (\forall_{\widehat{x}, \sigma}.
+                                                (A \lolli B \otimes
+                                                 \defstwo{agg}{\widehat{v}}{\Sigma'
+                                                 + \sigma})))) \\
+   \dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{(\lambda x.
+      C\{\widehat{V}/\widehat{v}\}\{\Sigma/\Sigma'\} x) \Sigma, \Omega}{\outsem}
+   \end{gathered}
+}
 \]
 
 \[
-\infer[\dz \lolli]
-{\dz \Gamma ; \Delta_a, \Delta_b ; \Xi ; \Gamma_1 ; \Delta_1 ; A \lolli B,
-   \Omega \rightarrow \outsem}
-{\mz \Gamma ; \Delta_a \rightarrow A & \dz \Gamma ; \Delta_b ; \Xi, \Delta_a ;
-   \Gamma_1 ; \Delta_1 ; B, \Omega \rightarrow \outsem}
+\infer[\dzname \lolli]
+{\dz{\Gamma}{\Pi}{\Delta_a, \Delta_b}{\Xi}{\Gamma_1}{\Delta_1}{A \lolli B,
+   \Omega}{\outsem}}
+   {\mz{\Gamma}{\Delta_a}{A} & \dz{\Gamma}{\Pi}{\Delta_b}{\Xi, \Delta_a}
+      {\Gamma_1}{\Delta_1}{B, \Omega}{\outsem}}
 \]
 }
-\vspace{-20pt}

@@ -1,61 +1,64 @@
 Linear Meld (LM) is a logic programming language that offers a declarative and
 structured way to manage state using linear logic. A program consists of a
 database and a set of inference rules. The database is satured by applying
-inference rules to the facts in the database. Since LM is based on linear logic
-facts are consumed when used in inference rules.
+inference rules to the facts in the database. LM distinguishes between
+\emph{linear facts}, which can be retracted after an inference, and
+\emph{persistent facts} which cannot be retracted and are preceded by a \bang
+symbol.
 
-Fig.~\ref{code:visit} presents a LM program that visits all the nodes of a
+Figure~\ref{code:visit} presents a LM program that visits all the nodes of a
 graph. Given a graph $G = (E, V)$, the program starts with a database that has a
-fact \texttt{edge(a, b)} for every edge $(a, b) \in E$ and a fact
-\texttt{unvisited(a)} for every node $a \in G$. The idea of the program to
-initially visit node 1 (line 1) by applying the first rule (lines 3-5) which
-deletes fact \texttt{visit(1)} and \texttt{unvisited(1)} and derives fact
-\texttt{visited(1)} and a \texttt{visit(b)} for all edges $(1, b) \in E$ using a
-comprehension (line 5). The comprehension has two parts: \texttt{edge(A, B)}
-represents the body and \texttt{visit(B)} represents the head. Semantically, the
-comprehension is a rule of the form \texttt{edge(A, B) $\lolli$ visit(B)} that
-is inferred as many times as the database allows. In this case, all the edges of
-the node are deleted to infer a new \texttt{visit} fact.  The second rule of the
-program (lines 7-8) is inferred when a node has been visited already.  For a
-connected graph $G$, all the \texttt{unvisited} facts will be deleted and a fact
-\texttt{visited(a)} will be derived for every node $a \in G$.
-
+fact \code{edge(a, b)} for every edge $(a, b) \in E$ and a fact
+\code{unvisited(a)} for every node $a \in G$. The idea of the program is to
+initially visit node 1 (line~\ref{line:visit_axiom}) by applying the first rule
+(lines 3-5) which retracts fact \code{visit(1)} and \code{unvisited(1)} and
+derives fact \code{visited(1)} and a \code{visit(b)} for all edges $(1, b)
+\in E$ using a comprehension (line~\ref{line:visit_comprehension}). The
+comprehension has two parts: \code{edge(A, B)} represents the body and
+\code{visit(B)} represents the head. Semantically, the comprehension is a rule
+of the form \code{edge(A, B) $\lolli$ visit(B)} that is inferred as many times
+as the database allows. In this case, all the edges of the node are deleted to
+infer several \code{visit} facts. The second rule of the program
+(lines~\ref{line:visit_rule21}-\ref{line:visit_rule22}) is inferred when a node
+has been visited already. For a connected graph $G$, all the \code{unvisited}
+facts will be deleted and a fact \code{visited(a)} will be derived for every
+node $a \in G$.
 
 \begin{figure}[h]
-\stuffsize\begin{Verbatim}[numbers=left]
-visit(1). // start at node 1.
+\begin{Verbatim}[numbers=left,commandchars=\*\#\&,fontsize=\stuffsize,xleftmargin=\stuffleftmargin]
+visit(1). // start at node 1.*label#line:visit_axiom&
 
 visit(A), unvisited(A) // change from unvisited to visited.
    -o visited(A),
-      {B | edge(A, B) | visit(B)}.
+      {B | edge(A, B) | visit(B)}.*label#line:visit_comprehension&
  
-visit(A), visited(A) // node already visited.
-   -o visited(A).
+visit(A), visited(A) // node already visited.*label#line:visit_rule21&
+   -o visited(A).*label#line:visit_rule22&
 \end{Verbatim}
 \caption{LM program to perform a visit of all nodes in a connected graph.}
   \label{code:visit}
 \end{figure}
 
-Fig.~\ref{code:pagerank} presents a fragment of an asynchronous PageRank
+Figure~\ref{code:pagerank} presents a fragment of an asynchronous PageRank
 program that sums all the pagerank values of neighbor nodes. The rule deletes
-the old \texttt{pagerank} fact and then derives an aggregate. The first
-argument contains \texttt{sum} (the aggregate operator) and $V$ (the
-aggregate value). The second argument \texttt{edge(A, B), pagerank(B, V)}
-is the body of the aggregate that is iterated over to derive \texttt{edge(A, B),
-pagerank(B, V)}. The values $V_i$ of each combination of \texttt{edge}
-and \texttt{pagerank} are summed up and instantiated as $V = \sum_i V_i$ in
-\texttt{pagerank(A, damping/PAGES + (1.0 - damping) * V)} in order to compute
-the new pagerank values that is the sum of the neighborhood.
+the old \code{pagerank} fact and then derives an aggregate. The first
+argument contains \code{sum} (the aggregate operator) and $V$ (the
+aggregate value). The second argument \code{edge(A, B), pagerank(B, V)}
+is the body of the aggregate that is iterated over to derive \code{edge(A, B),
+pagerank(B, V)}. The values $V_i$ of each combination of \code{edge}
+and \code{pagerank} are summed up and instantiated as $V = \sum_i V_i$ in
+\code{pagerank(A, damping/PAGES + (1.0 - damping) * V)} in order to compute
+the new pagerank values that is the sum of the pageranks of the neighborhood.
 
 \begin{figure}[h]
-\stuffsize\begin{Verbatim}[numbers=left]
+\begin{Verbatim}[numbers=left,fontsize=\stuffsize,xleftmargin=\stuffleftmargin]
 pagerank(A, OldRank)
       -o [sum => V | B | edge(A, B), pagerank(B, V) |
             edge(A, B), pagerank(B, V) |
             pagerank(A, damp/P + (1.0 - damp) * V)].
 \end{Verbatim}
-\caption{Inference rule to update the pagerank of a node.}
-  \label{code:pagerank}
+   \caption{Inference rule to update the pagerank of a node.}
+   \label{code:pagerank}
 \end{figure}
 
 \paragraph{Operational Semantics} Each rule in LM has a defined priority that is
@@ -64,20 +67,27 @@ file have higher priority. We consider all the new facts that have been not
 considered yet to create a set of \emph{candidate rules}.  The set of candidate
 rules is then applied (by priority) and updated as new facts are derived.  Rules
 are inferred atomically and both comprehensions and aggregates cannot use facts
-derived for the current rule, only facts derived in the past.
+derived during the current rule.
+
+LM also imposes restrictions on the inference rules by forcing that every fact
+used in the body of a rule uses the same first argument. This allows the
+language to be concurrent since the database of facts is partitioned (by the
+first argument) into many small databases that can infer rules independently.
+In the remainder of this paper, we ignore this detail and consider the database
+as a whole.
 
 \paragraph{Abstract Syntax}
 
 Table~\ref{tbl:ast} shows the abstract syntax for rules in LM.
 A LM program $Prog$ consists of a set of derivation rules $\Sigma$ and a database $D$.
-Comprehensions and aggregates only appear on the head of the rule and such
-constructs only use simple facts.
+Comprehensions and aggregates only appear on the head of the rule and can only
+use simple facts.
 
 %\renewcommand{\arraystretch}{1.5}
-\noindent \begin{table}[!htb]
+\noindent \begin{table}[h]
 \captionsetup[subfloat]{labelformat=empty}
 \subfloat[]{
-\scriptsize\begin{tabular}{ l l c l }
+\stuffsize\begin{tabular}{ l l c l }
   Program & $Prog$ & $::=$ & $\Sigma, D$ \\
   Set Of Rules & $\Sigma$ & $::=$ & $\cdot \; | \; \Sigma, R$\\
   Database & $D$ & $::=$ & $\Gamma, \Delta$ \\
@@ -87,7 +97,7 @@ constructs only use simple facts.
   Persistent Fact & $P$ & $::=$ & $\bang p(\hat{x})$\\
 \end{tabular}
 } \subfloat[]{
-\scriptsize\begin{tabular}{l l c l}
+\stuffsize\begin{tabular}{l l c l}
   Rule & $R$ & $::=$ & $BE \lolli HE \; | \; \forall_{x}. R$ \\
   Body & $BE$ & $::=$ & $L \; | \; P \; | \; BE, BE \; | \; \one$\\
   Head & $HE$ & $::=$ & $L \; | \; P \; | \; HE, HE \; | \; CE \; | \; AE \; | \; \one$\\
@@ -99,7 +109,7 @@ constructs only use simple facts.
   Sub-Head & $SH$ & $::=$ & $L \; | \; P \; | \; SH, SH \; | \; \one$\\
 \end{tabular}
 }
-\vspace{-20pt}
+\vspace{-.5\intextsep}
 \caption{Abstract syntax for a fragment of LM.}\label{tbl:ast}
 \end{table}
 %\renewcommand{\arraystretch}{1.0}

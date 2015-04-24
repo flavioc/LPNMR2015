@@ -9,6 +9,21 @@
 {\Psi ; \seqx{\Gamma}{\Delta, A, B}{C}}
 \]
 
+
+\[
+   \infer[\with L_1]
+   {\Psi; \seqx{\Gamma}{\Delta, A \with B}{C}}
+   {\Psi; \seqx{\Gamma}{\Delta, A}{C}}
+   \tab
+   \infer[\with L_2]
+   {\Psi; \seqx{\Gamma}{\Delta, A \with B}{C}}
+   {\Psi; \seqx{\Gamma}{\Delta, B}{C}}
+   \tab
+   \infer[\with R]
+   {\Psi; \seqx{\Gamma}{\Delta}{A \with B}}
+   {\Psi; \seqx{\Gamma}{\Delta}{A} & \Psi; \seqx{\Gamma}{\Delta}{B}}
+\]
+
 \[
 \infer[\lolli R]
 {\Psi ; \seqx{\Gamma}{\Delta}{A \lolli B}}
@@ -19,7 +34,6 @@
 {\Psi ; \seqx{\Gamma}{\Delta}{A} &
    \Psi ; \seqx{\Gamma}{\Delta', B}{C}}
 \]
-
 
 \[
 \infer[\bang R]
@@ -43,6 +57,10 @@
 \infer[\one L]
 {\Psi ; \seqx{\Gamma}{\Delta, \one}{C}}
 {\Psi ; \seqx{\Gamma}{\Delta}{C}}
+\tab
+\infer[id_A]
+{\Psi ; \seqx{\Gamma}{A}{A}}
+{}
 \]
 
 \[
@@ -54,50 +72,12 @@
 {\Psi ; \seqx{\Gamma}{\Delta, \forall_{n:\tau}. A}{C}}
 {\Psi \vdash M : \tau & \Psi ; \seqx{\Gamma}{\Delta, A\{M/n\}}{C}}
 \]
-
 \[
-\infer[\exists R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\exists_{n: \tau}. A}}
-{\Psi \vdash M : \tau &
-   \Psi ; \seqx{\Gamma}{\Delta}{A \{M/n\}}}
+\infer[cut_A]
+{\Psi ; \seqx{\Gamma}{\Delta, \Delta'}{C}}
+{\Psi ; \seqx{\Gamma}{\Delta}{A} & \Psi ; \seqx{\Gamma}{\Delta', A}{C}}
 \tab
-\infer[\exists L]
-{\Psi ; \seqx{\Gamma}{\Delta, \exists_{n:\tau}. A}{C}}
-{\Psi, m:\tau ; \seqx{\Gamma}{\Delta, A\{m/n\}}{C}}
+\infer[cut\bang_A]
+{\Psi ; \seqx{\Gamma}{\Delta}{C}}
+{\Psi ; \seqx{\Gamma}{\cdot}{A} & \Psi ; \seqx{\Gamma, A}{\Delta}{C}}
 \]
-
-\iffalse
-
-\[
-\infer[\itersname^* R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\iters{name}{\widehat{V}}}}
-{\Psi ; \seqx{\Gamma}{\Delta}{\iter{name}{N}{\widehat{V}}}}
-\tab
-\infer[\itersname^* L]
-{\Psi ; \seqx{\Gamma}{\Delta, \iters{name}{\widehat{V}}}{C}}
-{\Psi ; \seqx{\Gamma}{\Delta, \iter{name}{N}{\widehat{V}}}{C}}
-\]
-
-\[
-\infer[\itersname^N R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\iter{name}{N}{\widehat{V}}}}
-{\Psi ; \seqx{\Gamma}{\Delta}{\forall_{\widehat{x}}. (A \widehat{x}
-      \otimes \iter{name}{N-1}{(\iterop{x}{V})}})}
-\]
-\[
-\infer[\itersname^N L]
-{\Psi ; \seqx{\Gamma}{\Delta, \iter{name}{N}{\widehat{V}}}{C}}
-{\Psi ; \seqx{\Gamma}{\Delta, \forall_{\widehat{x}}. (A \widehat{x}
-      \otimes \iter{name}{N-1}{(\iterop{x}{V})})}{C}}
-\]
-
-\[
-\infer[\itersname^0 R]
-{\Psi ; \seqx{\Gamma}{\Delta}{\iter{name}{0}{\widehat{V}}}}
-{\Psi ; \seqx{\Gamma}{\Delta}{(\lambda_{\widehat{x}}. C)\widehat{V}}}
-\tab
-\infer[\itersname^0 L]
-{\Psi ; \seqx{\Gamma}{\Delta, \iter{name}{0}{\widehat{V}}}{C}}
-{\Psi ; \seqx{\Gamma}{\Delta, (\lambda_{\widehat{x}}. C)\widehat{V}}{C}}
-\]
-\fi

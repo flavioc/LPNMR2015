@@ -1,46 +1,37 @@
-The Low Level Dynamic~(LLD) semantics remove all the non-deterministic choices
-in the previous dynamics and makes them deterministic. LLD semantics are the
-operational semantics of LM and they:
+The Low Level Abstract Machine~(LLAM) implements the complete operational
+semantics of LM and builds on top of HLD by turning all the non-deterministic
+choices of HLD into deterministic steps. LLAM specifies the following:
 
 \begin{itemize}
-   \item Match rules by priority order;
+   \item Rule matching by priority order;
 
-   \item Determine the set of linear facts needed to match either the body of
-   the rule or the body of comprehensions/aggregates without guessing;
+   \item Deterministic matching of rule bodies and bodies of comprehensions and
+      aggregates;
 
-   \item Apply as many comprehensions as the database allows;
-
-   \item Apply as many aggregates as the database allows.
+   \item Applications of as many comprehensions and aggregates as the database
+      allows. Aggregates are applied depending on the number of available
+      combinations in the database.
 
 \end{itemize}
 
 HLD had many different proof trees for a given triplet $\Gamma; \Delta; \Phi$
 because HLD allows choices to be made during the inference rules. For instance,
-in HLD any rule could be selected to be executed. In LLD there is only
-one proof tree for a given $\Gamma; \Delta; \Phi$ since there is no
-guessing involved. LLD semantics present a complete step by step
-mechanism that is needed to correctly evaluate a LM program. For
-instance, when LLD tries to apply a rule, it will check if there are
-enough facts in the database and backtrack until a rule can be inferred.
+in HLD any rule could be selected to be executed. LLAM is defined as a
+deterministic sequence of computation steps and there is no guessing involved.
+LLAM semantics present a complete step by step mechanism that is needed to
+correctly evaluate a LM program. For instance, when LLAM tries to apply a rule,
+it will check if there are enough facts in the database and backtrack until a
+rule can be inferred.
 
-\begin{theorem}[Proof Uniqueness]
-In LLD, there is only one possible proof for a given $\Gamma; \Delta; \Phi$.
-\end{theorem}
-\begin{proof}
-Inference rules of every judgment in LLD are disjunct, therefore only one
-inference rule can be applied at any given point in the proof.
-\end{proof}
-
-\paragraph{Continuation Stack} The core idea of LDD is the \emph{continuation
+\paragraph{Continuation Stack} The core idea of LLAM is the \emph{continuation
 stack}. A continuation stack contains \emph{continuation frames} that are
-created for each fact type needed from the database. For instance, the first
-rule in Fig.~\ref{code:visit} needs 3 frames: \texttt{visit},
-\texttt{visited} and \texttt{edge}. A frame allows the semantics to search
-over the facts of a given fact type in order to match bodies of rules and
-thus contains candidate facts that will be tried.  Each frame stores all
-contexts required to restart the matching process when it was created.  A
-frame has the form $(\Delta; \Delta'; \Xi; p; \Omega; \Lambda; \Upsilon;
-\Psi)$, where:
+created for each predicate needed from the database. For instance, the first
+rule in Fig.~\ref{code:visit} needs 3 frames: \texttt{visit}, \texttt{visited}
+and \texttt{edge}. A frame allows the LLAM to search over the facts of a given
+predicate in order to match bodies of rules and thus contains candidate facts
+that will be attempted. Each frame stores the contexts required to restart the
+matching process when it was created. A frame has the form $(\Delta; \Delta';
+\Xi; p; \Omega; \Lambda; \Upsilon; \Psi)$, where:
 
 \begin{enumerate}
 
@@ -69,7 +60,7 @@ frame has the form $(\Delta; \Delta'; \Xi; p; \Omega; \Lambda; \Upsilon;
 \end{enumerate}
 
 LLD also uses a special \emph{rule continuation stack} that tries all the rules
-in order. This fullfills the semantics of LM for deriving the highest priority
+in order. This fulfills the semantics of LM for deriving the highest priority
 rule. In terms of inputs and outputs, LLD is equal to HLD.
 
 \paragraph{Matching} Matching starts with an empty continuation stack. The terms
