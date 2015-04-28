@@ -1,10 +1,13 @@
 In this paper, we described an operational semantics for a forward-chaining
-linear logic programming language with support for comprehensions and
-aggregates. We started with \fragment, a intuitionistic linear logic system,
-which was expanded to HLD semantics, a proof system based on focusing with
-forwards-chaining on the sequent calculus. The LLD semantics removed the
-non-determinism of HLD to complete the full semantics of LM. LLD specifies in
-detail how linear facts are managed when matching a rule, that is, by storing
-choice points and backtracking when matching fails. This mechanism is essential
-for deriving comprehensions and aggregates, which requires matching all the
-combinations from the database.
+linear logic programming language with support for comprehensions, aggregates
+and rule priorities. We started with a simple fragment of linear logic which was
+then expanded to HLD semantics, a proof system based on focusing with
+forwards-chaining on the sequent calculus. The LLAM removed the non-determinism
+of HLD to complete the full semantics of LM. The LLAM specifies in detail how
+linear facts are managed when matching a rule, that is, by storing continuation
+frames and backtracking when matching fails. This mechanism is essential for
+deriving comprehensions and aggregates, since these require matching all the
+combinations from the database. We also presented an overview of the soundness
+proof, which relates the LLAM with the HLD semantics and can be seen as a
+mapping between a abstract machine that determines all the steps of the
+computation process with focused proofs in the sequent calculus.

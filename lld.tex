@@ -3,6 +3,7 @@ semantics of LM and builds on top of HLD by turning all the non-deterministic
 choices of HLD into deterministic steps. LLAM specifies the following:
 
 \begin{itemize}
+
    \item Rule matching by priority order;
 
    \item Deterministic matching of rule bodies and bodies of comprehensions and
@@ -14,10 +15,9 @@ choices of HLD into deterministic steps. LLAM specifies the following:
 
 \end{itemize}
 
-HLD had many different proof trees for a given triplet $\Gamma; \Delta; \Phi$
-because HLD allows choices to be made during the inference rules. For instance,
-in HLD any rule could be selected to be executed. LLAM is defined as a
-deterministic sequence of computation steps and there is no guessing involved.
+LLAM is defined as a sequence of state transitions of the form $\trans{S_1}{S_2}$,
+while HLD had many different proof trees for a given triplet $\Gamma; \Delta; \Phi$
+since HLD allows choices to be made during the inference rules.
 LLAM semantics present a complete step by step mechanism that is needed to
 correctly evaluate a LM program. For instance, when LLAM tries to apply a rule,
 it will check if there are enough facts in the database and backtrack until a
@@ -26,123 +26,131 @@ rule can be inferred.
 \paragraph{Continuation Stack} The core idea of LLAM is the \emph{continuation
 stack}. A continuation stack contains \emph{continuation frames} that are
 created for each predicate needed from the database. For instance, the first
-rule in Fig.~\ref{code:visit} needs 3 frames: \texttt{visit}, \texttt{visited}
-and \texttt{edge}. A frame allows the LLAM to search over the facts of a given
-predicate in order to match bodies of rules and thus contains candidate facts
+rule in Fig.~\ref{code:visit} needs 3 frames: \code{visit}, \code{visited} and
+\code{edge}. A frame allows the LLAM to search over facts of a given
+predicate in order to match terms and thus contains candidate facts
 that will be attempted. Each frame stores the contexts required to restart the
-matching process when it was created. A frame has the form $(\Delta; \Delta';
-\Xi; p; \Omega; \Lambda; \Upsilon; \Psi)$, where:
+matching process when it was created. We have \emph{linear} and \emph{persistent
+frames}, which are created for linear and persistent fact expressions,
+respectively. For brevity purposes we discuss only linear frames, which have the
+form $\lframe{\Delta}{\Delta''}{p}{\Omega; \Psi}{\Delta'}{\Omega'}$, where:
 
 \begin{enumerate}
 
-   \item[$\Delta$] multi-set of linear facts that are not of type $p$ plus all
-   the other $p$'s we have already tried, including the current $p$;
+  \item[$\Delta$] multi-set of linear facts that are not of predicate $p$ plus
+all the other $p$'s we have tried already, including the current $p$;
 
-   \item[$\Delta'$] all the other $p$'s we haven't tried yet. It is a multi-set
-   of linear facts;
+  \item[$\Delta''$] all the other $p$' facts we haven't tried yet. It is a multi-set
+  of linear facts;
 
-   \item[$\Xi$] multi-set of linear facts we have consumed to reach this point;
+  \item[$p$] fact expression that created this frame;
 
-   \item[$p$] current fact expression that originated this choice point;
+  \item[$\Omega$] ordered list of remaining terms needed to match past this
+  frame;
 
-   \item[$\Omega$] ordered list of remaining terms needed to match past this
-   choice point;
+  \item[$\Delta'$] multi-set of linear facts we have consumed to reach this point;
 
-   \item[$\Lambda$] multi-set of linear fact expressions that we have matched to
-   reach this choice point. All the linear facts that match these terms are
-   located in $\Xi$;
-
-   \item[$\Upsilon$] multi-set of persistent fact expressions that we matched up
-   to this point;
+  \item[$\Omega'$] terms matched up-to this point using $\Delta'$ and $\Gamma$. 
+The frame proposition $\mz{\Gamma}{\Delta'}{\Omega'}$ represent a valid HLD
+matching proposition. This will be used during the soundness proof in the next
+section.
 
    \item[$\Psi$] current variable assignments (includes variable and value).
-
+     
 \end{enumerate}
 
-LLD also uses a special \emph{rule continuation stack} that tries all the rules
-in order. This fulfills the semantics of LM for deriving the highest priority
-rule. In terms of inputs and outputs, LLD is equal to HLD.
+We also have a \emph{persistent frame} that is used for matching persistent fact
+expressions. For brevity purposes, we will use only linear frames.
 
-\paragraph{Matching} Matching starts with an empty continuation stack. The terms
-to match are deconstructed in an ordered context and continuation frames are
-pushed into the stack whenever a new fact appears in the body. In the rule
-below, $p_1, \Delta'' \prec p$ means that the database facts $p_1, \Delta''$
-fullfill the constraints of $p$\footnote{Constraints such as variable
-matchings.} and thus $\Delta''$ is pushed into the new continuation frame
-because it is the set of candidate facts to try next.
+\paragraph{Matching} For a rule of the form $A \lolli B$, matching starts with
+an empty continuation stack and term $A$ has a term to match that contains free
+variables that need to be matched, as show in the following LLAM state:
 
-\vspace{-10pt}
-{\stuffsize
 \[
-\infer[\mo p~\m{on}~q]
-{\mo \Psi ; \Gamma ; \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; f, \lstack{C};
-   \lstack{R} \rightarrow \outsem}
-{
-\begin{gathered}
-   p_1, \Delta'' \prec p \\
-   f = (\Delta_{old}; \Delta'_{old}; q; \Omega_{old}; \Xi_{old}; \Lambda;
-         \Upsilon; \Psi_{old}) \\
-   f' = (\Delta, p_1; \Delta''; p; \Omega; \Xi; q, \Lambda; \Upsilon; \Psi) \\
-   \mo \Psi ; \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; f', f, \lstack{C}; \lstack{R} \rightarrow \outsem
-\end{gathered}
-}
+   \matstate{A \lolli B}{(\Delta; \Phi)}{\cdot}{\Gamma}{\Delta}{A}{\cdot
+   \rightarrow \one}
 \]
-}
-\vspace{-15pt}
 
-Matching finishes when there is no more terms to match.
+The terms to match are deconstructed in an ordered context and continuation
+frames are pushed onto the stack whenever a new fact appears in the body. Like
+the frames shown before, each matching state also contains the proposition
+$\mz{\Gamma}{\Delta'}{\Gamma'}$ that is an HLD proposition built by
+de-constructing and matching terms.
 
-\paragraph{Continuation} If, during the matching process, the mechanism is
-unable to retrieve candidate facts for a given fact, we need to backtrack to try
-other combinations. The top frame of the continuation stack is updated to
-retrieve the next candidate fact and then restore the matching process using the
-frame's contexts.
+The following transitions model linear expression matching. $p_1, \Delta'' \prec
+p$ means that the database facts $p_1, \Delta''$ satisfy the constraints of
+$p$\footnote{Constraints such as variable matchings.} by using the omitted
+variable context $\Psi$. The context $\Delta''$ is pushed into the new
+continuation frame because it is the set of candidate facts to try next.
 
-\vspace{-10pt}
-{\stuffsize
-\[
-\infer[\cont p~\m{next}]
-{\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda; \Upsilon; \Psi), \lstack{C};
-   H; \lstack{R}; \Gamma \rightarrow \outsem}
-{\mo \Psi; \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p,
-      \Omega; H; \Xi; \Lambda; \Upsilon; \Psi), \lstack{C}; \lstack{R} \rightarrow \outsem}
-\]
-}
-\vspace{-20pt}
+\input{lld/match-p}
+
+LLAM also uses a special \emph{rule continuation stack} represented as $\rulestk
+= (\Delta; \Phi)$ that tries all the rules in order. This fulfills the semantics
+of LM for deriving the highest priority rule. In terms of inputs and outputs,
+LLAM is equal to HLD.
+
+\paragraph{Continuation} If, during the matching process, the machine is unable
+to retrieve candidate facts for a given fact using $\Psi$, it backtracks to try
+other facts in order to use different variable assignments in $\Psi$. The top
+frame of the continuation stack is updated to retrieve the next candidate fact
+and then restore the matching process using the frame's contexts.
+
+The following two transitions model LLAM continuation states. In the first
+transition, the next candidate fact is retrieved from the linear frame and the
+linear frame is updated. In the second transition, since there is no available
+candidate, the frame is thrown away and the next frame is inspected.
+
+\input{lld/cont-p}
 
 \paragraph{Derivation}
 
 Once matching completes, the terms are derived by deconstructing the head terms
 into an ordered context. Next, the terms are derived sequentially, including
-comprehensions and aggregates.
+comprehensions and aggregates. The following rule shows the transition from a
+derivation state to the final state of the machine:
+
+\input{lld/der-done}
+
+The contexts $\Gamma_1$ and $\Delta_1$ contain facts that were derived using the
+head terms, incluing aggregates and comprehensions.
 
 \paragraph{Aggregates}
 
-Both aggregates and comprehensions use the same computation mechanism as before.
-First, we start with an empty continuation stack and then the aggregate's body
-$SB$ is matched. If matching is successful, then the first application of the
-aggregate is completed and then the aggregate head $SH_1$ is derived for this
-particular combination. At this point, the aggregate value is saved in the
-judgment.\footnote{Since the aggregate references a variable $x$, we look into
-   $\Psi$ to retrieve the value.}
+Both aggregates and comprehensions use the same matching and continuation
+mechanism shown before.  Consider an aggregate of the form
+$\aggregate{\mathtt{cons ::}}{\sigma}{\widehat{x}}{A}{B}{C}$. We start with an
+empty continuation stack and match $A$.  The LLAM transition for initializing
+the computation of aggregates is as follows:
 
-However, the semantics of aggregates require all the combinations of $SB$ from
-the database. For this, we reuse the continuation stack created by the first
+\input{lld/der-agg}
+
+If matching is successful then the first application of the aggregate is
+completed and the aggregate head $B$ is derived for that particular combination.
+At this point, the aggregate value is saved in the judgment to be aggregated
+later with all the remaining values\footnote{Since the aggregate references an
+accumulator variable $\sigma$, we use $\Psi(\sigma)$ to retrieve the value.}.
+
+The semantics of aggregates require all the combinations of $A$ from
+the database. We reuse the continuation stack created by the first
 application. All the frames after the first continuation frame for a linear fact
 need to be removed and then the remaining frames need to be updated in order to
-delete the consumed facts from the contexts. For example, if the body is
+delete the consumed facts from the contexts. For example, if the body $A$ is
 $\mathtt{b(X)} \otimes \mathtt{c(X)} \otimes \mathtt{b(Y)}$ and the continuation
 stack has three frames (one per fact), we cannot backtrack to the frame of
 $\mathtt{b(Y)}$ because, at that point, the matching process was assuming that
 the previous $\mathtt{c(X)}$ linear fact was still available.  Moreover, we also
 need to remove the consumed linear facts from the $\mathtt{b(X)}$ frame
 since the candidate context may contain a $\mathtt{b}$ fact that was deleted
-for $\mathtt{b(Y)}$.
+for $\mathtt{b(Y)}$. Note that we use two separate continuations in order to
+mark the offset in the stack where the first linear continuation frame was
+pushed.
 
-Afterwards, the next application of the aggregate is done by restarting the
-matching process at the top of the continuation stack. This repeated process
-eventually iterates over the database since all candidate facts are matched.
-The aggregate completes when the continuation stack is exhausted and then the
-final aggregate head $SH_2$ is derived with the computed aggregated value.
+The aggregate computation continues by restarting the matching process at the
+top of the continuation stack. This repeated process eventually iterates over
+the database since all candidate facts are matched. The aggregate completes
+when the continuation stack is exhausted. The final aggregate head $C$ is
+then derived with the aggregated value $\Sigma$ as shown in the transition
+below:
 
-
+\input{lld/agg-cont-end}
