@@ -1,0 +1,15 @@
+\begin{multline}
+\transx{\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{\bang p,
+   \Omega}{\Delta' \rightarrow \Omega'}}
+{\matstate{A \lolli B}{\rulestk}{\pframe{\Gamma''}{\Delta}{\bang
+   p}{\Omega}{\Delta'}{\Omega'}, \lstack{C}}{\Gamma, p_1,
+      \Gamma''}{\Delta}{\Omega}{\Delta' \rightarrow \Omega' \otimes \bang p}}
+      \;\;\; (\bang p_1, \Gamma'' \prec \bang p) \tag{match \bang p ok}
+\end{multline}
+
+\begin{align}
+\trans{\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{\bang p,
+   \Omega}{\Delta' \rightarrow \Omega'}}
+{\contstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}} \;\;\; (\Gamma \npreceq
+      \bang p) \tag{match \bang p fail}
+\end{align}

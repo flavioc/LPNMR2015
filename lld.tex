@@ -147,10 +147,10 @@ mark the offset in the stack where the first linear continuation frame was
 pushed.
 
 The aggregate computation continues by restarting the matching process at the
-top of the continuation stack. This repeated process eventually iterates over
-the database since all candidate facts are matched. The aggregate completes
-when the continuation stack is exhausted. The final aggregate head $C$ is
-then derived with the aggregated value $\Sigma$ as shown in the transition
-below:
+top of the continuation stack and then matching the body of the aggregate once
+again. This repeated process eventually iterates over the database. The
+aggregate completes when the continuation stack is exhausted. The final
+aggregate head $C$ is then derived with the aggregated value $\Sigma$ as shown
+in the transition below:
 
 \input{lld/agg-cont-end}

@@ -1,0 +1,56 @@
+
+\[
+\underset{
+   \begin{gathered}
+   \Pi(\m{agg}) = \forall_{\widehat{v}, \Sigma'}.
+   (\defstwo{agg}{\widehat{v}}{\Sigma'} \lolli ((\lambda x. C x)\Sigma' \with (\forall_{\widehat{x}, \sigma}.
+                                                ((A \lolli B) \otimes
+                                                 \defstwo{agg}{\widehat{v}}{\sigma
+                                                 ::\Sigma'})))) \\
+   f' = remove(f, \Delta') \\
+   \lstack{P'} = remove(\lstack{P}, \Delta') \\
+   V = \Psi(\sigma)
+   \end{gathered}
+}
+{
+   \trans{
+      \fixstatea{\Delta}{\Xi; \Delta'}{f; \lstack{P}}{\Gamma}{\Sigma}
+   }
+   {
+      \derstatea{\Delta}{\Xi; \Delta'}{\Gamma_1}{\Delta_1}{V :: \Sigma}{f';
+         \lstack{P'}}{B\{\Psi(\widehat{x}), V / \widehat{x}, \sigma \}}
+   }
+}
+\]
+
+\[
+\trans{
+   \fixstatea{\Delta}{\Xi; \Delta'}{\_, f, \lstack{C}; \lstack{P}}{\Gamma}{\Sigma}
+}
+{
+   \fixstatea{\Delta}{\Xi; \Delta'}{f, \lstack{C}; \lstack{P}}{\Gamma}{\Sigma}
+}
+\]
+
+\[
+\underset{
+   \begin{gathered}
+   \Pi(\m{agg}) = \forall_{\widehat{v}, \Sigma'}.
+   (\defstwo{agg}{\widehat{v}}{\Sigma'} \lolli ((\lambda x. C x)\Sigma' \with (\forall_{\widehat{x}, \sigma}.
+                                                ((A \lolli B) \otimes
+                                                 \defstwo{agg}{\widehat{v}}{\sigma
+                                                 ::\Sigma'})))) \\
+   \lstack{P'} = remove(\lstack{P}, \Delta') \\
+   V = \Psi(\sigma)
+   \end{gathered}
+}
+{
+   \trans{
+      \fixstatea{\Delta}{\Xi; \Delta'}{\cdot; \lstack{P}}{\Gamma}{\Sigma}
+   }
+   {
+      \derstatea{\Delta}{\Xi, \Delta'}{\Gamma_{N1}}{\Delta_{N1}}{V :: \Sigma}{\cdot;
+         \lstack{P}'}{B\{\Psi(\widehat{x}), V / \widehat{x}, \sigma \}}
+   }
+}
+\]

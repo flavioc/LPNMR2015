@@ -5,12 +5,9 @@ paper.pdf: paper.tex intro.tex \
 		language.tex \
 		hld.tex related_work.tex \
 		refs.bib lld.tex \
-		abstract.tex \
-		conclusions.tex \
-		calculus.tex \
-		macros.tex \
-		appendix/lld.tex \
-		appendix/hld.tex \
+		abstract.tex conclusions.tex \
+		calculus.tex macros.tex soundness.tex \
+		appendix/lld.tex appendix/hld.tex \
 		appendix/fragment.tex \
 		hld/derivation.tex
 	pdflatex paper.tex

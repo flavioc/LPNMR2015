@@ -1,0 +1,17 @@
+\begin{align}
+\trans{\contstate{A \lolli B}{\rulestk}{\pframe{\bang p_2,
+   \Gamma''}{\Delta}{\bang p}{\Omega}{\Delta'}{\Omega'}, \lstack{C}}{\Gamma}}
+{
+   \matstate{A \lolli B}{\rulestk}{\pframe{\Gamma''}{\Delta}{\bang
+      p}{\Omega}{\Delta'}{\Omega'}, \lstack{C}}{\Gamma}{\Delta}{\Omega}{\Delta'
+         \rightarrow \Omega' \otimes \bang p_2}}
+         \tag{next \bang p}
+\end{align}
+
+\begin{align}
+\trans{\contstate{A \lolli B}{\rulestk}{\pframe{\cdot}{\Delta}{\bang
+   p}{\Omega}{\Delta'}{\Omega'}, \lstack{C}}{\Gamma}}
+{
+   \contstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}}
+   \tag{next \bang frame}
+\end{align}

@@ -1,0 +1,22 @@
+
+\begin{align}
+\trans{\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{\one,
+   \Omega}{\Delta' \rightarrow \Omega'}}
+{\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{\Omega}{\Delta'
+   \rightarrow \Omega'}} \tag{match $\one$}
+\end{align}
+
+\begin{align}
+\trans{\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{X \otimes Y,
+   \Omega}{\Delta' \rightarrow \Omega'}}
+{\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{X, Y,
+   \Omega}{\Delta' \rightarrow \Omega;}} \tag{match $\otimes$}
+\end{align}
+
+\begin{align}
+\trans{\matstate{A \lolli
+   B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{\cdot}{\Delta' \rightarrow \Omega'}}
+{
+   \derstatex{\Gamma}{\Delta}{\Delta'}{\cdot}{\cdot}{B}
+} \tag{match end}
+\end{align}

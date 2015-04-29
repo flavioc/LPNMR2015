@@ -1,0 +1,19 @@
+\begin{multline}
+\transx{\contstate{A \lolli B}{\rulestk}{\lframe{\Delta}{p_2,
+   \Delta''}{p}{\Omega}{\Delta'}{\Omega'}, \lstack{C}}{\Gamma}}
+{
+   \matstate{A \lolli B}{\rulestk}{\lframe{\Delta,
+      p_2}{\Delta''}{p}{\Omega}{\Delta'}{\Omega'},
+   \lstack{C}}{\Gamma}{\Delta}{\Omega}{\Delta', p_2 \rightarrow \Omega' \otimes p}}
+   \tag{next p}
+\end{multline}
+
+\vspace{-5mm}
+
+\begin{align}
+\trans{\contstate{A \lolli
+   B}{\rulestk}{\lframe{\Delta}{\cdot}{p}{\Omega}{\Delta'}{\Omega'},
+      \lstack{C}}{\Gamma}}
+{
+   \contstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}} \tag{next frame}
+\end{align}
