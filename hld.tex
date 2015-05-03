@@ -5,9 +5,9 @@ $\Delta$ the database of our program. $\Gamma$ contains the database of
 persistent facts while $\Delta$ the database of linear facts. We assume that the
 rules of the program are persistent linear implications of the form $\bang (A
 \lolli B)$ that can be used several times. However, we do not put the rules in
-the $\Gamma$ context but in a separate context $\Phi$. The persistent terms
-associated with each comprehension and aggregate are put in the $\Pi$ dictionary
-that maps symbols to persistent terms.
+$\Gamma$ but in a separate context $\Phi$. The persistent terms associated with
+each comprehension and aggregate are put in the $\Pi$ dictionary that maps
+symbols to persistent terms.
 
 In HLD, we ignore the right side of the sequent calculus and use \emph{chaining}
 and \emph{inversion} on the $\Delta$ and $\Gamma$ contexts so that we only have
@@ -26,26 +26,27 @@ in a state transition represented as $\Gamma_1; \Delta_1 \rightarrow \Gamma_2;
 $\doz{\Gamma}{\Delta}{\Phi}{\Pi}{\Xi'}{\Gamma'}{\Delta'}$. The contexts
 $\Gamma$, $\Delta$ and $\Phi$ have the meaning explained before, while $\Xi'$,
 $\Gamma'$ and $\Delta'$ are output multi-sets from applying one of the rules in
-$\Phi$ and are usually written as $\outsem$. $\Xi'$ is the set of consumed
+$\Phi$ and are usually written as $\outsem$. $\Xi'$ is the multi-set of consumed
 linear resources, $\Gamma'$ is the set of derived persistent facts and $\Delta'$
-is the set of derived linear facts.  Note that for HLD semantics there is no
-concept of rule priority, therefore a rule is picked non-deterministically.
+is the multi-set of derived linear facts. Note that, for HLD semantics, there is
+no concept of rule priority, therefore a rule is picked non-deterministically.
+In HLD computation, proceeds in three phases, as follows:
 
-In HLD computation proceeds as follows:
 \begin{itemize}[leftmargin=*]
 
-   \item The rule is unpacked by "guessing" the correct variable assignments for
-   the $\forall$ connective;
+   \item The rule is unpacked by guessing the variable assignments for the
+      $\forall$ connective;
 
    \item The linear implication $A \lolli B$ non-deterministically splits the
    set of matched facts $\Delta$ into $\Delta_a$ and $\Delta_b$, where
    $\Delta_1$ is the set of linear facts used for matching the rule body;
    Matching uses the judgment $\mz{\Gamma}{\Delta_1}{A}$ for a given
-   body $A$;
+   body $A$; Consumed facts are always added to context $\Xi$;
+
 
    \item $\dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{\Omega}{\outsem}$
-   treats the head of the rule $\Omega$ as an ordered context and unpacks facts
-   into $\Gamma_1$ and $\Delta_1$.
+      treats the head of the rule $\Omega$ as an ordered context and unpacks new
+      facts into $\Gamma_1$ and $\Delta_1$.
 
 \end{itemize}
 
@@ -53,14 +54,14 @@ Aggregates are computed during the derivation the head of a rule.  First, we
 look into $\Pi$ for the appropriate persistent term and then immediatelly apply
 the top linear implication ($\m{copy}$ rule in the $\Pi$ context followed by the
 $\lolli L$ rule of the sequent calculus). The aggregate term is substituted by
-either the final term (if the aggregate is complete)\footnote{The aggregate
-shown collects all values into a list using the cons $::$ operator.} or by the
-recursive case. On the recursive case, the implication is deconstructed using
-$\dzname \lolli$ where the matching judgment is used again in order to match the
-body of the aggregate and then derive the two heads of the aggregate. The
-relevant rules are presented as follows:
+either the final term, if the aggregate is complete, or by the recursive case
+\footnote{The aggregate shown collects all values into a list using the cons
+$::$ operator.}. In the latter, the implication is deconstructed using $\dzname
+\lolli$ and the matching judgment is used again to match the body of the
+aggregate. The relevant rules are presented as follows:
 
 {\stuffsize
+\vspace{-4mm}
 \[
 \infer[\dzname \m{agg}_1]
 {\dz{\Gamma}{\Pi}{\Delta}{\Xi}{\Gamma_1}{\Delta_1}{\defstwo{agg}{\widehat{V}}{\Sigma},
@@ -104,4 +105,5 @@ relevant rules are presented as follows:
    {\mz{\Gamma}{\Delta_a}{A} & \dz{\Gamma}{\Pi}{\Delta_b}{\Xi, \Delta_a}
       {\Gamma_1}{\Delta_1}{B, \Omega}{\outsem}}
 \]
+\vspace{-5mm}
 }

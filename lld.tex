@@ -6,41 +6,37 @@ choices of HLD into deterministic steps. LLAM specifies the following:
 
    \item Rule matching by priority order;
 
-   \item Deterministic matching of rule bodies and bodies of comprehensions and
-      aggregates;
+   \item Deterministic matching of rule, comprehension and
+      aggregate bodies;
 
-   \item Applications of as many comprehensions and aggregates as the database
-      allows. Aggregates are applied depending on the number of available
-      combinations in the database.
+   \item Iteration over all available combinations of facts for comprehensions/aggregates.
 
 \end{itemize}
 
-LLAM is defined as a sequence of state transitions of the form $\trans{S_1}{S_2}$,
-while HLD had many different proof trees for a given triplet $\Gamma; \Delta; \Phi$
-since HLD allows choices to be made during the inference rules.
-LLAM semantics present a complete step by step mechanism that is needed to
-correctly evaluate a LM program. For instance, when LLAM tries to apply a rule,
-it will check if there are enough facts in the database and backtrack until a
-rule can be inferred.
+While HLD was represented as a proof tree with multiple choices, LLAM is defined
+as a sequence of state transitions of the form $\trans{S_1}{S_2}$.  The LLAM
+presents a complete step by step mechanism that is needed to correctly evaluate
+an LM program. For instance, when LLAM tries to apply a rule, it checks if there
+are enough facts in the database and backtrack until some rule can be inferred.
 
 \paragraph{Continuation Stack} The core idea of LLAM is the \emph{continuation
 stack}. A continuation stack contains \emph{continuation frames} that are
 created for each predicate needed from the database. For instance, the first
 rule in Fig.~\ref{code:visit} needs 3 frames: \code{visit}, \code{visited} and
-\code{edge}. A frame allows the LLAM to search over facts of a given
-predicate in order to match terms and thus contains candidate facts
-that will be attempted. Each frame stores the contexts required to restart the
-matching process when it was created. We have \emph{linear} and \emph{persistent
-frames}, which are created for linear and persistent fact expressions,
-respectively. For brevity purposes we discuss only linear frames, which have the
-form $\lframe{\Delta}{\Delta''}{p}{\Omega; \Psi}{\Delta'}{\Omega'}$, where:
+\code{edge}. A frame allows the LLAM to search over facts of a given predicate
+in order to match terms and thus contains candidate facts that will be
+attempted. Each frame stores the contexts required to restart the matching
+process. We have \emph{linear} and \emph{persistent frames}, which are created
+for linear and persistent fact expressions, respectively.  We discuss only
+linear frames, which have the form $\lframe{\Delta}{\Delta''}{p}{\Omega;
+\Psi}{\Delta'}{\Omega'}$, where:
 
 \begin{enumerate}
 
   \item[$\Delta$] multi-set of linear facts that are not of predicate $p$ plus
 all the other $p$'s we have tried already, including the current $p$;
 
-  \item[$\Delta''$] all the other $p$' facts we haven't tried yet. It is a multi-set
+  \item[$\Delta''$] all the other $p$ facts we have not tried yet. It is a multi-set
   of linear facts;
 
   \item[$p$] fact expression that created this frame;
@@ -48,10 +44,11 @@ all the other $p$'s we have tried already, including the current $p$;
   \item[$\Omega$] ordered list of remaining terms needed to match past this
   frame;
 
-  \item[$\Delta'$] multi-set of linear facts we have consumed to reach this point;
+  \item[$\Delta'$] multi-set of linear facts we have consumed to reach this
+     point in the process;
 
   \item[$\Omega'$] terms matched up-to this point using $\Delta'$ and $\Gamma$. 
-The frame proposition $\mz{\Gamma}{\Delta'}{\Omega'}$ represent a valid HLD
+The frame proposition $\mz{\Gamma}{\Delta'}{\Omega'}$ represents a valid HLD
 matching proposition. This will be used during the soundness proof in the next
 section.
 
@@ -59,31 +56,37 @@ section.
      
 \end{enumerate}
 
-We also have a \emph{persistent frame} that is used for matching persistent fact
-expressions. For brevity purposes, we will use only linear frames.
+\paragraph{Matching} For a rule of the form $\forall_{\widehat{x}}. A \lolli B$,
+matching starts with an empty continuation stack and term $A$ has a term to
+match that contains the (now) free variables $\widehat{x}$ that need to be
+matched, as show in the following LLAM state:
 
-\paragraph{Matching} For a rule of the form $A \lolli B$, matching starts with
-an empty continuation stack and term $A$ has a term to match that contains free
-variables that need to be matched, as show in the following LLAM state:
-
+\vspace{-3mm}
 \[
    \matstate{A \lolli B}{(\Delta; \Phi)}{\cdot}{\Gamma}{\Delta}{A}{\cdot
    \rightarrow \one}
 \]
+\vspace{-3mm}
 
-The terms to match are deconstructed in an ordered context and continuation
-frames are pushed onto the stack whenever a new fact appears in the body. Like
-the frames shown before, each matching state also contains the proposition
-$\mz{\Gamma}{\Delta'}{\Gamma'}$ that is an HLD proposition built by
-de-constructing and matching terms.
+No shown in the matching state is the context $\Psi$ that maps variables to
+values. At the start of matching, the $\widehat{x}$ variables are set as
+\emph{undefined}. The terms to match are then deconstructed in an ordered
+context and continuation frames are pushed onto the stack whenever a new fact
+appears in the body. New facts also update the variables in the $\Psi$ contexts
+by assigning them concrete values. Like the frames shown before, each matching
+state also contains a proposition $\mz{\Gamma}{\Delta'}{\Omega'}$ that is an HLD
+proof built by de-constructing and matching terms.
 
 The following transitions model linear expression matching. $p_1, \Delta'' \prec
 p$ means that the database facts $p_1, \Delta''$ satisfy the constraints of
-$p$\footnote{Constraints such as variable matchings.} by using the omitted
-variable context $\Psi$. The context $\Delta''$ is pushed into the new
-continuation frame because it is the set of candidate facts to try next.
+$p$\footnote{Constraints such as variable matchings using the current $\Psi$
+context.} by using the omitted variable context $\Psi$. The context $\Delta''$
+is pushed into the new continuation frame because it is the set of candidate
+facts to try next.
 
+\vspace{-5mm}
 \input{lld/match-p}
+\vspace{-5mm}
 
 LLAM also uses a special \emph{rule continuation stack} represented as $\rulestk
 = (\Delta; \Phi)$ that tries all the rules in order. This fulfills the semantics
@@ -98,22 +101,26 @@ and then restore the matching process using the frame's contexts.
 
 The following two transitions model LLAM continuation states. In the first
 transition, the next candidate fact is retrieved from the linear frame and the
-linear frame is updated. In the second transition, since there is no available
-candidate, the frame is thrown away and the next frame is inspected.
+linear frame is updated. In the second transition, since there is no candidate,
+the frame is thrown away and the next frame is used.
 
+\vspace{-5mm}
 \input{lld/cont-p}
+\vspace{-5mm}
 
 \paragraph{Derivation}
 
-Once matching completes, the terms are derived by deconstructing the head terms
+Once matching completes, the terms are derived by de-constructing the head terms
 into an ordered context. Next, the terms are derived sequentially, including
 comprehensions and aggregates. The following rule shows the transition from a
 derivation state to the final state of the machine:
 
+\vspace{-5mm}
 \input{lld/der-done}
+\vspace{-5mm}
 
-The contexts $\Gamma_1$ and $\Delta_1$ contain facts that were derived using the
-head terms, incluing aggregates and comprehensions.
+The contexts $\Gamma_1$ and $\Delta_1$ contain facts that were derived from head
+terms.
 
 \paragraph{Aggregates}
 
@@ -123,13 +130,15 @@ $\aggregate{\mathtt{cons ::}}{\sigma}{\widehat{x}}{A}{B}{C}$. We start with an
 empty continuation stack and match $A$.  The LLAM transition for initializing
 the computation of aggregates is as follows:
 
+\vspace{-5mm}
 \input{lld/der-agg}
+\vspace{-4mm}
 
 If matching is successful then the first application of the aggregate is
-completed and the aggregate head $B$ is derived for that particular combination.
-At this point, the aggregate value is saved in the judgment to be aggregated
-later with all the remaining values\footnote{Since the aggregate references an
-accumulator variable $\sigma$, we use $\Psi(\sigma)$ to retrieve the value.}.
+completed and $B$ is derived for that particular combination.  At this point,
+the aggregate value is saved in the judgment to be aggregated later with all the
+remaining values\footnote{Since the aggregate references an accumulator variable
+$\sigma$, we use $\Psi(\sigma)$ to retrieve the value.}.
 
 The semantics of aggregates require all the combinations of $A$ from
 the database. We reuse the continuation stack created by the first
@@ -153,4 +162,31 @@ aggregate completes when the continuation stack is exhausted. The final
 aggregate head $C$ is then derived with the aggregated value $\Sigma$ as shown
 in the transition below:
 
+\vspace{-5mm}
 \input{lld/agg-cont-end}
+\vspace{-4mm}
+
+Figure~\ref{fig:backtrack} shows how the aggregate in the pagerank code shown in
+Fig.~\ref{code:pagerank} is computed. Let's assume that \code{A = 1} and that
+there are four facts: \code{edge(1,2)}, \code{edge(1,3)},
+\code{pagerank(2,0.5)}, \code{pagerank(3,0.5)}. An initial frame is created for
+\code{edge(1,B)} which includes two \code{edge} facts and \code{edge(1,2)} is
+selected to continue the process.  Since \code{B = 2}, the frame for
+\code{pagerank} includes only \code{pagerank(2,0.5)} which completes the first
+application of the aggregate and every linear fact used is re-derived using the
+first aggregate head. Computation then proceeds by backtracking to the first
+linear frame, namely, the frame of \code{edge(1,B)} and the \code{edge(1,3)} is
+selected for matching. A frame for \code{pagerank(3,V)} is created and the
+second application of the aggregate re-derives the head. For the third
+application, we backtrack again to the first linear frame, but there are no
+available candidates and no more frames and thus the second aggregate head is
+derived using \code{V = 0.5 + 0.5} as the result, completing the aggregate.
+
+\begin{figure}[ht]
+   \begin{center}
+      \includegraphics[width=0.7\linewidth]{figures/backtrack.pdf}
+   \end{center}
+   \caption{Generating the pagerank aggregate.}
+   \label{fig:backtrack}
+   \vspace{-5mm}
+\end{figure}

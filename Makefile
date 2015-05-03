@@ -11,8 +11,8 @@ paper.pdf: paper.tex intro.tex \
 		appendix/fragment.tex \
 		hld/derivation.tex
 	pdflatex paper.tex
-	pdflatex paper.tex
 	bibtex paper
+	pdflatex paper.tex
 	pdflatex paper.tex
 
 clean:

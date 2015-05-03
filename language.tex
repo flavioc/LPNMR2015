@@ -2,9 +2,9 @@ Linear Meld (LM) is a logic programming language that offers a declarative and
 structured way to manage state using linear logic. A program consists of a
 database and a set of inference rules. The database is satured by applying
 inference rules to the facts in the database. LM distinguishes between
-\emph{linear facts}, which can be retracted after an inference, and
-\emph{persistent facts} which cannot be retracted and are preceded by a \bang
-symbol.
+\emph{linear facts}, which are retracted after an inference, and
+\emph{persistent facts} which cannot be retracted and are preceded by a
+\code{\bang} symbol.
 
 Figure~\ref{code:visit} presents a LM program that visits all the nodes of a
 graph. Given a graph $G = (E, V)$, the program starts with a database that has a
@@ -12,13 +12,13 @@ fact \code{edge(a, b)} for every edge $(a, b) \in E$ and a fact
 \code{unvisited(a)} for every node $a \in G$. The idea of the program is to
 initially visit node 1 (line~\ref{line:visit_axiom}) by applying the first rule
 (lines 3-5) which retracts fact \code{visit(1)} and \code{unvisited(1)} and
-derives fact \code{visited(1)} and a \code{visit(b)} for all edges $(1, b)
-\in E$ using a comprehension (line~\ref{line:visit_comprehension}). The
+derives fact \code{visited(1)} and a \code{visit(b)} for all edges $(1, b) \in
+E$ using a comprehension (line~\ref{line:visit_comprehension}). The
 comprehension has two parts: \code{edge(A, B)} represents the body and
 \code{visit(B)} represents the head. Semantically, the comprehension is a rule
 of the form \code{edge(A, B) $\lolli$ visit(B)} that is inferred as many times
 as the database allows. In this case, all the edges of the node are deleted to
-infer several \code{visit} facts. The second rule of the program
+infer \code{visit}. The second rule of the program
 (lines~\ref{line:visit_rule21}-\ref{line:visit_rule22}) is inferred when a node
 has been visited already. For a connected graph $G$, all the \code{unvisited}
 facts will be deleted and a fact \code{visited(a)} will be derived for every
@@ -37,18 +37,19 @@ visit(A), visited(A) // node already visited.*label#line:visit_rule21&
 \end{Verbatim}
 \caption{LM program to perform a visit of all nodes in a connected graph.}
   \label{code:visit}
+\vspace{-5mm}
 \end{figure}
 
 Figure~\ref{code:pagerank} presents a fragment of an asynchronous PageRank
 program that sums all the pagerank values of neighbor nodes. The rule deletes
-the old \code{pagerank} fact and then derives an aggregate. The first
-argument contains \code{sum} (the aggregate operator) and $V$ (the
-aggregate value). The second argument \code{edge(A, B), pagerank(B, V)}
-is the body of the aggregate that is iterated over to derive \code{edge(A, B),
-pagerank(B, V)}. The values $V_i$ of each combination of \code{edge}
-and \code{pagerank} are summed up and instantiated as $V = \sum_i V_i$ in
-\code{pagerank(A, damping/PAGES + (1.0 - damping) * V)} in order to compute
-the new pagerank values that is the sum of the pageranks of the neighborhood.
+the old \code{pagerank} fact and then derives an aggregate. The first argument
+contains \code{sum} (the aggregate operator) and $V$ (the aggregate value). The
+second argument \code{edge(A, B), pagerank(B, V)} is the body of the aggregate
+that is iterated over to derive \code{edge(A, B), pagerank(B, V)}. The values
+$V_i$ of each combination of \code{edge} and \code{pagerank} are summed up and
+instantiated as $V = \sum_i V_i$ in \code{pagerank(A, damping/PAGES + (1.0 -
+damping) * V)} to compute the new pagerank as the sum of the pageranks of the
+neighborhood.
 
 \begin{figure}[h]
 \begin{Verbatim}[numbers=left,fontsize=\stuffsize,xleftmargin=\stuffleftmargin]
@@ -59,6 +60,7 @@ pagerank(A, OldRank)
 \end{Verbatim}
    \caption{Inference rule to update the pagerank of a node.}
    \label{code:pagerank}
+\vspace{-5mm}
 \end{figure}
 
 \paragraph{Operational Semantics} Each rule in LM has a defined priority that is
@@ -76,15 +78,15 @@ first argument) into many small databases that can infer rules independently.
 In the remainder of this paper, we ignore this detail and consider the database
 as a whole.
 
-\paragraph{Abstract Syntax}
+\paragraph{Abstract Syntax} 
 
-Table~\ref{tbl:ast} shows the abstract syntax for rules in LM.
-A LM program $Prog$ consists of a set of derivation rules $\Sigma$ and a database $D$.
-Comprehensions and aggregates only appear on the head of the rule and can only
-use simple facts.
+Table~\ref{tbl:ast} shows the abstract syntax for rules in LM. A LM program
+$Prog$ consists of a set of derivation rules $\Sigma$ and a database $D$.
+Comprehensions and aggregates only appear on the head of the rule and only use
+simple fact expressions.
 
-%\renewcommand{\arraystretch}{1.5}
 \noindent \begin{table}[h]
+\vspace{-5mm}
 \captionsetup[subfloat]{labelformat=empty}
 \subfloat[]{
 \stuffsize\begin{tabular}{ l l c l }
@@ -109,7 +111,6 @@ use simple facts.
   Sub-Head & $SH$ & $::=$ & $L \; | \; P \; | \; SH, SH \; | \; \one$\\
 \end{tabular}
 }
-\vspace{-.5\intextsep}
 \caption{Abstract syntax for a fragment of LM.}\label{tbl:ast}
+\vspace{-7mm}
 \end{table}
-%\renewcommand{\arraystretch}{1.0}

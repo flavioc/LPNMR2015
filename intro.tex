@@ -1,13 +1,13 @@
 
 Datalog~\cite{Ramakrishnan93asurvey} is a forward-chaining logic programming
-language originally for deductive databases. In Datalog, the program is composed
-of a database of facts and a set of rules. Datalog programs first populate the
-database with axioms and then saturate the database using rule inference. In
-Datalog logical facts are persistent, therefore once a fact is derived, it
-cannot be deleted. However, there has been a growing interest in integrating
-linear logic~\cite{girard-87} into bottom-up logic
+language originally designed for deductive databases. In Datalog, the program is
+composed of a database of facts and a set of rules. Datalog programs first
+populate the database with axioms and then saturate the database using rule
+inference. In Datalog, logical facts are persistent and thus once a fact is
+derived, it cannot be deleted. However, there has been a growing interest in
+integrating linear logic~\cite{girard-87} into bottom-up logic
 programming~\cite{Chang03ajudgmental,cruz-iclp14,Lopez:2005:MCL:1069774.1069778,simmons-lla},
-allowing for both fact assertion and fact retraction.
+allowing for both fact assertion and retraction.
 
 Linear logic programming greatly increases the expressiveness of traditional
 Datalog since it allows the programmer to manage state in a structured fashion.
@@ -26,7 +26,7 @@ fragment of intuitionistic linear logic and both comprehensions and aggregates
 are encoded using persistent terms that allow the programmer to iterate over
 combinations of facts. We present a high level dynamic semantics and then a low
 level abstract machine using proof-theoretic methods. The high level semantics
-are closely related to the sequent calculus of since it amounts to focusing with
+are closely related to the sequent calculus since it amounts to focusing with
 forward-chaining~\cite{Andreoli92logicprogramming,laurent2004proof}, where atoms
 have a positive polarity.  The low level abstract machine is much closer to a
 real implementation since it remove most of non-determinism of the high level
@@ -39,7 +39,8 @@ The contributions of this paper are 2-fold: (1) a low level abstract machine for
 a forward-chaining linear logic programming language and (2) the connection to
 its logic based on proof-theoretic methods, namely, the sequent calculus.  The
 paper is organized as follows. In Section 2 we present a simple LM program.
-Next, in Section 3 we present the sequent calculus of used for LM. In Sections 4
-and 5 we present the high level dynamic semantics and the low level abstract
-machine. The soundness proof is presented in Section 6 and then we conclude with
-related work and conclusions.
+Next, in Section 3 we present the fragment of linear logic used for LM. In
+Sections 4 and 5 we present the high level dynamic semantics and the low level
+abstract machine. The soundness proof is presented in
+Section~\ref{sec:soundness} and then we conclude with related work and
+conclusions.

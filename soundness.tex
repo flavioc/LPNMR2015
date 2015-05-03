@@ -1,19 +1,22 @@
 The soundness proof proves that if a rule is successfully derived using the
-LLAM, then it can also be derived in the HLD semantics. Since the HLD semantics
-are so close to linear logic, we prove that LM has a determined, correct, proof
-search behavior when executing programs. However, the completeness theorem
-cannot be proven since LLAM lacks the non-determinism present in HLD.
+LLAM, then it can also be derived in HLD. Since HLD semantics are so close to
+linear logic, we prove that LM has a determined, correct, proof search behavior
+when executing programs. However, the completeness theorem cannot be proven
+since LLAM lacks the non-determinism present in HLD.
 
-\paragraph{Initial Definitions} We first define the equality between two multi-sets
+\paragraph{Initial Definitions} We first define equality between two multi-sets
 of terms. Two multi-sets $A$ and $B$ are equal, $\feq{A}{B}$, when they have the
-same constituent atoms. This definition will be useful to define what it means
-for a frame and state to be well-formed.
+same constituent atoms\footnote{Also extends to atoms with variables, in which
+there is a valid substitution to make them equal.}. This definition will be
+useful to define what it means for a frame and state to be well-formed.
 
 {\scriptsize
 \[
-\infer[\equiv p]{\feq{p, A}{p, B}}{\feq{A}{B}}
+\infer[\equiv p]{\feq{p, A}{q, B}}{\feq{A\theta_1}{B\theta_2} &
+p\theta_1 \triangleq q\theta_2}
 \tab
-\infer[\equiv \bang p]{\feq{\bang p, A}{\bang p, B}}{\feq{A}{B}}
+\infer[\equiv \bang p]{\feq{\bang p, A}{\bang q, B}}{\feq{A\theta_1}{B\theta_2}
+& \bang p \theta_1 \triangleq \bang q \theta_2}
 \tab
 \infer[\equiv \one~L]{\feq{\one, A}{B}}{\feq{A}{B}}
 \tab
@@ -27,6 +30,7 @@ for a frame and state to be well-formed.
 \tab
 \infer[\equiv \otimes~R]{\feq{A}{B \otimes C, D}}{\feq{A}{B, C, D}}
 \]
+\vspace{-5mm}
 }
 
 \iffalse
@@ -48,26 +52,26 @@ By straightforward induction on the first assumption.
         p_1}{\Delta''}{p}{\Omega}{\Delta'}{\Omega'}$ is well-formed iff:
 
 \begin{enumerate}
-  \item $\feq{p, \Omega, \Omega'}{A}$ (the remaining terms and already
-           matched terms are equivalent to the initial body $A$);
+  \item $\feq{p, \Omega, \Omega'}{A}$ (the remaining terms and 
+           matched terms are equivalent to body $A$);
   \item $\Delta' = \Delta'_1, \dotsc, \Delta'_n$ and $\Omega' =
   \Omega'_1 \otimes \dotsb \otimes \Omega'_n$
   \item $\Delta, \Delta'', \Delta, p_1 = \Delta_{N}$ (available facts, candidate
         facts for $p$, consumed facts and the linear fact used for $p$,
         respectively, are the same as the initial $\Delta_{N}$);
-  \item $\mz{\Gamma}{\Delta'}{\Omega}$ is valid.
+  \item $\mz{\Gamma}{\Delta'}{\Omega'}$ is valid.
 \end{enumerate}
 \end{definition}
 
 The well-formedness of a continuation stack follows the above definition for all
-frames.  Moreover, each adjacent continuation frame is related in the sense that
-$\Omega'$ of first frame is always smaller than the $\Omega'$ of the next frame.
+frames. Moreover, each adjacent continuation frame is related in the sense that
+$\Omega'$ of the first frame is always smaller than the $\Omega'$ of the next frame.
 Identical relations apply to $\Delta'$ (increases) and $\Omega$ (decreases).
 
-We also need to define what it means for a LLAM state to be well-formed. This is
-specially important for matching states because of the required
-$\mz{\Gamma}{\Delta}{\Omega}$ partial proof term that is constructed after each
-transition. We show the definition for a body matching state.
+We also need to define what it means for a LLAM state to be well-formed. For
+matching states in particular, we need to ensure that the proof term
+$\mz{\Gamma}{\Delta}{\Omega}$ is related to the term being matched. We show
+the body match definition below.
 
 \begin{definition}[Well-formed body match]
   $\matstate{A \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta}{\Omega}{\Delta'
@@ -75,25 +79,28 @@ transition. We show the definition for a body matching state.
   \Delta_{N}$ iff:
 
   \begin{itemize}
-     \item $\Delta, \Delta' = \Delta_{N}$ and $\feq{\Omega', \Omega}{A}$ and $\mz{\Gamma}{\Delta'}{\Omega}$ is valid;
-     \item $\lstack{C}$ is well-formed in relation to $A; \Gamma; \Delta_{N}$ and:
+     \item $\Delta, \Delta' = \Delta_{N}$ and $\feq{\Omega', \Omega}{A}$ and
+        $\mz{\Gamma}{\Delta'}{\Omega'}$ is valid;
+     \item $\lstack{C}$ is well-formed in relation to $A; \Gamma; \Delta_{N}$
+        and if:
      \begin{itemize}
-        \item If $\lstack{C} = \cdot$ then $\feq{\Omega}{A}$.
+        \item $\lstack{C} = \cdot$ then $\feq{\Omega}{A}$.
 
-        \item If $\lstack{C} = \lframe{\Delta_a,
-     p_1}{\Delta_b}{p}{\Omega_a}{\Delta_c}{\Omega_b}, \lstack{C'}$ then $\feq{\Omega'}{\Omega}$ and $\Delta = \Delta_a, \Delta_b$ and $\Delta' = \Delta_c, p_1$
+        \item $\lstack{C} = \lframe{\Delta_a,
+           p_1}{\Delta_b}{p}{\Omega_a}{\Delta_c}{\Omega_b}, \lstack{C'}$ then
+           $\feq{\Omega_a}{\Omega}$ and $\Delta = \Delta_a, \Delta_b$ and
+           $\Delta' = \Delta_c, p_1$
+
       \end{itemize}
    \end{itemize}
 \end{definition}
 
-\paragraph{Soundness of Matching} To prove the soundness of matching, we want
-to reconstitute a valid match $\mz{\Gamma}{\Delta}{A}$ in HLD from machine
-steps in LLAM. The machine specification already includes a built-in
-$\mz{\Gamma}{\Delta}{A}$ judgment that can be used to immediately prove the
-soundness result we need, however we need to prove that each state transition
-preservers the well-formedness of the machine from the previous definitions.
+\paragraph{Soundness of Matching} To prove the soundness of matching, we want to
+reconstitute a valid match $\mz{\Gamma}{\Delta}{A}$ in HLD from the steps of
+LLAM. To accomplish this, we need to prove that each step preserves 
+state well-formedness.
 
-\begin{theorem}[Rule transitions preserve well-formedness]
+\begin{theorem}[Transitions preserve well-formedness]
 Given a rule $A \lolli B$, consider a triplet $T = A; \Gamma; \Delta_{N}$.
 If a state $s_1$ is well-formed in relation to $T$ and $\trans{s_1}{s_2}$ then
 $s_2$ is also well-formed.
@@ -103,14 +110,13 @@ Use case by case analysis. Straightforward use of the well-formedness
 assumptions of $s_1$ and term equivalence rules.
 \end{proof}
 
-Now, we are ready to prove the lemma that reasons about the progression of
-matching states. We use the function $split(\Omega)$ that is defined as
-$times(flatten(\Omega))$ which deconstructs the atomic terms into a simple
-expression of the form $A_1 \otimes \cdots \otimes A_n$. It is assumed that
-$\feq{\Omega}{split(\Omega)}$.
+Now, we  prove the lemma that reasons about the progression of matching states.
+We use the function $split(\Omega)$ that is defined as $times(flatten(\Omega))$
+which de-constructs the atomic terms $A_i$ into an expression of the form $A_1
+\otimes \cdots \otimes A_n$. We assume that $\feq{\Omega}{split(\Omega)}$.
 
-  \begin{lemma}[Body match result]\label{thm:body_match}
-  Given a rule $A \lolli H$, consider a triplet $T = A; \Gamma; \Delta_{N}$ and
+\begin{lemma}[Body match result]\label{thm:body_match}
+  Given a rule $A \lolli B$, consider a triplet $T = A; \Gamma; \Delta_{N}$ and
   a context $\Delta_{N} = \Delta_1, \Delta_2, \Xi$.  If $s_1 = \matstate{A
   \lolli B}{\rulestk}{\lstack{C}}{\Gamma}{\Delta_1, \Delta_2}{\Omega}{\Delta'
   \rightarrow \Omega'}$ is well-formed in relation to $T$ and
@@ -134,9 +140,8 @@ $\feq{\Omega}{split(\Omega)}$.
 \end{lemma}
 \begin{proof}
    Proof by mutual lexicographic induction on the state transitions. First on the size
-   of $\Omega$ and then on the size of the second argument of the linear frame
-   or on the first argument of the linear frame and then on the size of stack
-   $\lstack{C}$.
+   of $\Omega$, then on the length of the remaining candidate facts of the
+   continuation frame and then on the size of the stack $\lstack{C}$.
 \end{proof}
 
 For an initial matching state $s_1 = \matstate{A \lolli
@@ -149,10 +154,9 @@ $\feq{split(\Omega)}{A}$ from the well-formedness of the machine state and by an
 auxiliary theorem which proves that equivalent terms are matched in HLD using
 the same facts.
 
-\paragraph{Aggregate Soundness} We also need to prove that an LLAM derivation is
-sound in relation to HLD. This is trivial except for the case of
-comprehensions and aggregates. The idea is to use lemma~\ref{thm:body_match} for
-the case of aggregates and use the result to
+\paragraph{Aggregate Soundness} Proving that an LLAM derivation is sound is
+trivial except for the case of comprehensions and aggregates.  The idea is to
+use lemma~\ref{thm:body_match} for the case of aggregates and use the result to
 prove that the continuation stack is updated for the next iteration of the
 aggregate. We sketch the proof below.
 
@@ -183,7 +187,7 @@ If $s_1 = \matstatea{\Delta, \Xi_1, \dotsc, \Xi_n}{\cdot;
      \item $n$ derivation implications for HLD that, for any $\Omega_x$ and
         $\outsem$:
   \end{itemize}
-  \vspace{-4mm}
+  \vspace{-2mm}
         {\small if $\dz{\Gamma}{\Pi}{\Delta, \Xi_{i+1}, \dotsc, \Xi_{n}}{\Xi, \Xi_1,
         \dotsc, \Xi_i}{\Gamma_{N1}, \Gamma_1, \dotsc, \Gamma_i}{\Delta_{N1},
            \Delta_1, \dotsc, \Delta_i}{\Omega_x}{\outsem}$ then \\
@@ -208,7 +212,7 @@ using the rules $\dzname \m{agg}_1$, $\dzname \m{agg}_2$ and $\dzname \lolli$.
 We use induction on the resulting state $s_2$ and then use the derivation
 implication and the matching proof to derive the $n^{th}$ application of the
 aggregate. The remaining applications are reconstructed in the same fashion
-from $n-1$ to $0$ until the required HLD derivation proposition is achieved.
+from $n-1$ to $0$ until the required HLD derivation proof is achieved.
 
 To conclude the proof, we state the main soundness theorem that proves that a
 starting LLAM state either executes a rule and builds the required HLD proof tree
@@ -225,8 +229,9 @@ or fails with no HLD proof tree.
   \item $\transs{s_1}{\failstate{\Gamma}{\Delta_N}}$ (failure)
      \end{itemize}
 \end{theorem}
+
 \begin{proof}
-   Use induction on the rule context $\Phi$. Apply Lemma~\ref{thm:body_match} to
+   Use induction on the size of the rule context $\Phi$. Apply Lemma~\ref{thm:body_match} to
    get a successful match and the required HLD proof or fail and use the
    induction hypothesis on the smaller rule context $\Phi'$.
 \end{proof}

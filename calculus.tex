@@ -1,12 +1,13 @@
 The fragment of linear logic used by LM is presented in
-Fig.~\ref{fig:sequent_calculus} in the form of the sequent calculus.
-The sequent is written as $\Psi; \seqx{\Gamma}{\Delta}{C}$ and
-can be read as "assuming persistent resources $\Gamma$ and linear resources
-$\Delta$ then $C$ is true". More specifically, $\Psi$ is the typing context,
-$\Gamma$ is a multi-set of persistent resources, $\Delta$ is a multi-set of
-linear resources while $C$ is the proposition we want to prove.
+Fig.~\ref{fig:sequent_calculus} in the form of the sequent calculus.  The
+sequent is written as $\Psi; \seqx{\Gamma}{\Delta}{C}$ and can be read as
+"assuming persistent resources $\Gamma$ and linear resources $\Delta$ then $C$
+is true". More specifically, $\Psi$ is the typing context, $\Gamma$ is a
+multi-set of persistent resources, $\Delta$ is a multi-set of linear resources
+while $C$ is the proposition we want to prove.
 
 \begin{figure}[ht]
+\vspace{-5mm}
 {\stuffsize
 \[
 \infer[\otimes R]
@@ -16,14 +17,14 @@ linear resources while $C$ is the proposition we want to prove.
 \infer[\otimes L]
 {\Psi ;\seqx{\Gamma}{\Delta, A \otimes B}{C}}
 {\Psi ; \seqx{\Gamma}{\Delta, A, B}{C}}
-\]
-
-
-\[
+   \tab
    \infer[\with L_1]
    {\Psi; \seqx{\Gamma}{\Delta, A \with B}{C}}
    {\Psi; \seqx{\Gamma}{\Delta, A}{C}}
-   \tab
+\]
+
+\vspace{-5mm}
+\[
    \infer[\with L_2]
    {\Psi; \seqx{\Gamma}{\Delta, A \with B}{C}}
    {\Psi; \seqx{\Gamma}{\Delta, B}{C}}
@@ -31,20 +32,19 @@ linear resources while $C$ is the proposition we want to prove.
    \infer[\with R]
    {\Psi; \seqx{\Gamma}{\Delta}{A \with B}}
    {\Psi; \seqx{\Gamma}{\Delta}{A} & \Psi; \seqx{\Gamma}{\Delta}{B}}
-\]
-
-\[
+\tab
 \infer[\lolli R]
 {\Psi ; \seqx{\Gamma}{\Delta}{A \lolli B}}
 {\Psi ; \seqx{\Gamma}{\Delta, A}{B}}
-\tab
+\]
+\vspace{-5mm}
+
+\[
 \infer[\lolli L]
 {\seqx{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
 {\Psi ; \seqx{\Gamma}{\Delta}{A} &
    \Psi ; \seqx{\Gamma}{\Delta', B}{C}}
-\]
-
-\[
+\tab
 \infer[\bang R]
 {\Psi ; \seqx{\Gamma}{\cdot}{\bang A}}
 {\Psi ; \seqx{\Gamma}{\cdot}{A}}
@@ -57,6 +57,7 @@ linear resources while $C$ is the proposition we want to prove.
 {\Psi ; \seqx{\Gamma, A}{\Delta}{C}}
 {\Psi ; \seqx{\Gamma, A}{\Delta, A}{C}}
 \]
+\vspace{-5mm}
 
 \[
 \infer[\one R]
@@ -71,7 +72,7 @@ linear resources while $C$ is the proposition we want to prove.
 {\Psi ; \seqx{\Gamma}{A}{A}}
 {}
 \]
-
+\vspace{-4mm}
 \[
 \infer[\forall R]
 {\Psi ; \seqx{\Gamma}{\Delta}{\forall_{n:\tau}. A}}
@@ -81,6 +82,8 @@ linear resources while $C$ is the proposition we want to prove.
 {\Psi ; \seqx{\Gamma}{\Delta, \forall_{n:\tau}. A}{C}}
 {\Psi \vdash M : \tau & \Psi ; \seqx{\Gamma}{\Delta, A\{M/n\}}{C}}
 \]
+\vspace{-5mm}
+
 \[
 \infer[cut_A]
 {\Psi ; \seqx{\Gamma}{\Delta, \Delta'}{C}}
@@ -91,9 +94,9 @@ linear resources while $C$ is the proposition we want to prove.
 {\Psi ; \seqx{\Gamma}{\cdot}{A} & \Psi ; \seqx{\Gamma, A}{\Delta}{C}}
 \]
 }
+\caption{Sequent calculus of the fragment of linear logic used to implement LM.}
 \label{fig:sequent_calculus}
-\caption{Fragment of linear logic used to implement LM.}
-\vspace{-\bigskipamount}
+\vspace{-5mm}
 \end{figure}
 
 \paragraph{From the Sequent Calculus to LM}
@@ -103,20 +106,24 @@ linear resources while $C$ is the proposition we want to prove.
 We translate the rule of the asynchronous PageRank~(Fig.~\ref{code:pagerank}) to
 a proposition in the sequent calculus:
 
+\vspace{-3mm}
+
 {\stuffsize
 \begin{align}
    \forall_A. \forall_{OldRank}. \mathtt{pagerank}(A, OldRank) \lolli
    \defsone{agg}{A, 0}
 \end{align}
+\vspace{-5mm}
 }
 
 The translation is fairly straightforward, except for the aggregate. Each
 comprehension\footnote{Comprehensions are a special case of aggregates without
 aggregate operators.} and aggregate of a LM program must be assigned to an
 unique name and a corresponding persistent term. For the symbol $agg$ we have
-the following persistent term:
+the following term:
 
 {\stuffsize
+\vspace{-3mm}
 \begin{multline}
    \bang \forall_A. \forall_V. \defsone{agg}{A, V} \lolli (\mathtt{pagerank}(A,
    damp/P + (1.0 - damp) \times V) \with \\ (\forall_V'. \forall_B.
@@ -124,12 +131,13 @@ the following persistent term:
    (\mathtt{edge}(A, B) \otimes \mathtt{pagerank}(B, V')) \otimes \defsone{agg}{A, V
    + V'}))
 \end{multline}
+\vspace{-5mm}
 }
 
-Notice that the argument list of $\defsone{agg}{A, V}$ is being used as
-$\forall$ variables that need to be recursively passed around. Any variable used
-in the aggregate expression must be part of the argument list.  For aggregates,
-have an extra variable (in the example, $V$) that accumulates the value of the
-aggregate. As we are going to see next, by making the aggregate term persistent,
-we are allowed to use it multiple times in order to compute the value of the
-aggregate.
+A $\defsone{agg}{A, V}$ is a special atomic term and its argument list is used
+as a placeholder for $\forall$ variables that need to be recursively passed
+around. Any variable used in the aggregate expression must be part of the
+argument list.  For aggregates, we have an extra variable (in the example, $V$)
+that accumulates the value of the aggregate. As we are going to see next, by
+using a persistent term we can compute the value of the aggregate over multiple
+combinations of facts.

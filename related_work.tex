@@ -3,22 +3,19 @@ languages~\cite{Miller85anoverview}, including forwards-chaining and
 backwards-chaining programming languages.
 LinLog~\cite{Andreoli92logicprogramming} is a backwards-chaining programming
 language that originated from the idea of using focused proofs as a basis for a
-programming language. Focused proofs are tractable since most irrelevant
-choices in during search are removed from the sequent calculus, making them
-ideal for a programming language. The semantics presented for LM also use
-focusing as a basis for developing the high level semantics and relating the
-operational semantics with linear logic.
-
-Lolli, a programming language presented in~\cite{Hodas94logicprogramming}, is
-based on a fragment of intuitionistic linear logic and proves goals by lazily
-managing the context of linear resources during backwards-chaining proof search.
+programming language.  Lolli, a programming language presented
+in~\cite{Hodas94logicprogramming}, is based on a fragment of intuitionistic
+linear logic and proves goals by lazily managing the context of linear resources
+during backwards-chaining proof search.
 LolliMon~\cite{Lopez:2005:MCL:1069774.1069778} is a concurrent linear logic
 programming language that integrates both forward-chaining and
 backwards-chaining search, where forward-chaining computations are encapsulated
 inside a monad and are concurrent, while backwards-chaining search is done
-sequentially. The programs starts by performing backwards-chaining search but
-this can be suspended in order to perform forward-chaining search. This
-concurrent forward-chaining search stops until a fix-point is achieved, after
-which backwards-chaining search is resumed. LolliMon is derived from the a
-concurrent logical framework called
-CLF~\cite{Watkins:2004uq,Cervesato02aconcurrent,Watkins03aconcurrent}.
+sequentially.
+
+Proof-theoretic methods have been used extensively for specifying the
+operational semantics~\cite{Cervesato96efficientresource} and
+compilation~\cite{DBLP:journals/corr/abs-1210-1653} aspects of logic programming
+languages. However, the available literature for linear logic programming only
+deals with backwards-chaining and the resource management issues that arise in
+such paradigm.
