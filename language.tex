@@ -25,6 +25,7 @@ facts will be deleted and a fact \code{visited(a)} will be derived for every
 node $a \in G$.
 
 \begin{figure}[h]
+   \vspace{-3mm}
 \begin{Verbatim}[numbers=left,commandchars=\*\#\&,fontsize=\stuffsize,xleftmargin=\stuffleftmargin]
 visit(1). // start at node 1.*label#line:visit_axiom&
 
@@ -52,6 +53,7 @@ damping) * V)} to compute the new pagerank as the sum of the pageranks of the
 neighborhood.
 
 \begin{figure}[h]
+\vspace{-3mm}
 \begin{Verbatim}[numbers=left,fontsize=\stuffsize,xleftmargin=\stuffleftmargin]
 pagerank(A, OldRank)
       -o [sum => V | B | edge(A, B), pagerank(B, V) |

@@ -1,13 +1,11 @@
-We specify the semantics of LM, a forward-chaining linear logic programming
-language that supports comprehensions, aggregates and rule priorities.
-Comprehensions iterate over combinations of facts to generate other facts while
-aggregates iterate over facts to aggregate values. We present the linear logic
-fragment used in the language and a high level dynamic semantics that closely
-mimics forward-chaining with focusing on the sequent calculus.  We also describe
-the LLAM, a low level abstract machine that describes the full operational
-behaviour of the language and is much closer to a concrete implementation. We
-prove that the LLAM is sound in relation to the high level semantics, meaning
-that any computation performed in the former can also be done in the latter. The
-soundness proof further shows how focused proofs with forward-chaining can be
-mapped to a low level representation that determines all the steps of the
-computation process.
+We describe the LLAM, an abstract machine that specifies the operational
+behaviour of a linear logic programming language that supports comprehensions
+and aggregates. Comprehensions iterate over combinations of facts to generate
+other facts while aggregates iterate over facts to aggregate values. We present
+the linear logic fragment used in the language and a high level dynamic
+semantics that closely mimics forward-chaining with focusing on the sequent
+calculus.  We prove that the LLAM is sound in relation to the high level
+semantics, meaning that any computation performed in the former can also be done
+in the latter. The soundness proof further shows how focused proofs with
+forward-chaining can be mapped to a low level representation that determines all
+the steps of the computation process.
